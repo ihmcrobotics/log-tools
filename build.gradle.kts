@@ -1,9 +1,6 @@
-import com.gradle.publish.MavenCoordinates
-
 plugins {
-   `java-gradle-plugin`
    id("us.ihmc.ihmc-build") version "0.15.1"
-   id("com.gradle.plugin-publish") version "0.9.9"
+   id("us.ihmc.log-tools")
 }
 
 ihmc {
@@ -19,32 +16,11 @@ ihmc {
 
 dependencies {
    compile(gradleApi())
+   compile("ch.qos.logback:logback-core:1.2.3")
+   compile("ch.qos.logback:logback-classic:1.2.3")
 }
 
-ihmc.sourceSetProject("api").dependencies {
-
-}
-
-gradlePlugin {
-   plugins {
-      register("logToolsPlugin") {
-         id = ihmc.group + "." + project.name
-         displayName = "Log Tools"
-         implementationClass = "us.ihmc.log.LogToolsPlugin"
-         description = "Message logging tools for IHMC Robotics."
-      }
-   }
-}
-
-pluginBundle {
-   website = "https://github.com/ihmcrobotics/log-tools"
-   vcsUrl = "https://github.com/ihmcrobotics/log-tools"
-   description = "Message logging tools for IHMC Robotics."
-   tags = listOf("log", "tools", "ihmc", "robotics")
-
-   mavenCoordinates(closureOf<MavenCoordinates> {
-      groupId = ihmc.group
-      artifactId = project.name
-      version = ihmc.version
-   })
+ihmc.sourceSetProject("test").dependencies {
+   compile("org.junit.jupiter:junit-jupiter-api:5.3.1")
+   runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.1")
 }
