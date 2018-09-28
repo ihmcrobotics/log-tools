@@ -1,5 +1,7 @@
 package us.ihmc.log;
 
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,27 +15,43 @@ public class LogTools
    /** For keeping track of the class that actually calls the RosieLogTools method. */
    private static final int STACK_TRACE_INDEX = 1;
 
-//   static
-//   {
-//      ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-//      LoggerContext loggerContext = rootLogger.getLoggerContext();
-//      // we are not interested in auto-configuration
-//      loggerContext.reset();
-//
-//      PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-//      encoder.setContext(loggerContext);
-//      encoder.setPattern("[%level] %date{EEE hh:mm a} %message%n");
-//      encoder.start();
-//
-//      ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<ILoggingEvent>();
-//      appender.setContext(loggerContext);
-//      appender.setEncoder(encoder);
-//      appender.start();
-//
-//      rootLogger.addAppender(appender);
-//      rootLogger.setLevel(Level.WARN);
-//      rootLogger.setAdditive(false);
-//   }
+   static
+   {
+      String ihmcLogLevel = "ihmc.log.level";
+      String ihmcGroup = "us.ihmc";
+      if (System.getProperties().containsKey(ihmcLogLevel))
+      {
+         String level = System.getProperty(ihmcLogLevel).trim().toLowerCase();
+         if (level.startsWith("fat") || level.startsWith("err"))
+         {
+            Configurator.setLevel(ihmcGroup, Level.ERROR);
+         }
+         else if (level.startsWith("war"))
+         {
+            Configurator.setLevel(ihmcGroup, Level.WARN);
+         }
+         else if (level.startsWith("inf"))
+         {
+            Configurator.setLevel(ihmcGroup, Level.INFO);
+         }
+         else if (level.startsWith("deb"))
+         {
+            Configurator.setLevel(ihmcGroup, Level.DEBUG);
+         }
+         else if (level.startsWith("tra"))
+         {
+            Configurator.setLevel(ihmcGroup, Level.TRACE);
+         }
+         else if (level.startsWith("all"))
+         {
+            Configurator.setLevel(ihmcGroup, Level.ALL);
+         }
+         else if (level.startsWith("off"))
+         {
+            Configurator.setLevel(ihmcGroup, Level.OFF);
+         }
+      }
+   }
 
    public static final Logger getLogger(Class<?> clazz)
    {
@@ -55,55 +73,8 @@ public class LogTools
 
          // Track the loggers that use this class
          loggers.put(className, logger);
-
-
-         //         ((ch.qos.logback.classic.Logger) logger).
-         // This line is questionable. It's to disable the default handler
-         // Another solution could be to use LogManager.getLogManager().reset();
-         //         logger.setUseParentHandlers(false);
-
-         // Set up INFO, CONFIG, FINE, FINER, FINEST to use System.out
-         //         StreamHandler infoAndDownHandler = new StreamHandler(System.out, createFormatter());
-         //         infoAndDownHandler.setFilter(record -> record.getLevel().intValue() <= Level.INFO.intValue());
-         //         logger.addHandler(infoAndDownHandler);
-
-         // Set up error, warn to use System.err
-         //         StreamHandler warnAndUpHandler = new StreamHandler(System.err, createFormatter());
-         //         warnAndUpHandler.setLevel(Level.warn);
-         //         logger.addHandler(warnAndUpHandler);
       }
    }
-
-   //   private static Formatter createFormatter()
-   //   {
-   //      return new Formatter()
-   //      {
-   //         @Override
-   //         public synchronized String format(LogRecord record)
-   //         {
-   //            String message = formatMessage(record);
-   //            return "[" + record.getLevel().getLocalizedName() + "] " + message + "\n";
-   //         }
-   //      };
-   //   }
-
-//   public class MySampleLayout extends LayoutBase<ILoggingEvent>
-//   {
-//      public String doLayout(ILoggingEvent event) {
-//         StringBuffer sbuf = new StringBuffer(128);
-//         //         sbuf.append(event.getTimeStamp() - event.getLoggingContextVO.getBirthTime());
-//         //         sbuf.append(" ");
-//         sbuf.append("[");
-//         sbuf.append(event.getLevel());
-//         //         sbuf.append(event.getThreadName());
-//         sbuf.append("] ");
-//         //         sbuf.append(event.getLoggerName();
-//         //         sbuf.append(" - ");
-//         sbuf.append(event.getFormattedMessage());
-//         sbuf.append(CoreConstants.LINE_SEPARATOR);
-//         return sbuf.toString();
-//      }
-//   }
 
    public static void error(String message)
    {
