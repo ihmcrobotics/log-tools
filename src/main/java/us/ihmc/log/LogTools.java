@@ -1,12 +1,5 @@
 package us.ihmc.log;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.ConsoleAppender;
-import ch.qos.logback.core.CoreConstants;
-import ch.qos.logback.core.LayoutBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,27 +13,27 @@ public class LogTools
    /** For keeping track of the class that actually calls the RosieLogTools method. */
    private static final int STACK_TRACE_INDEX = 1;
 
-   static
-   {
-      ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-      LoggerContext loggerContext = rootLogger.getLoggerContext();
-      // we are not interested in auto-configuration
-      loggerContext.reset();
-
-      PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-      encoder.setContext(loggerContext);
-      encoder.setPattern("[%level] %date{EEE hh:mm a} %message%n");
-      encoder.start();
-
-      ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<ILoggingEvent>();
-      appender.setContext(loggerContext);
-      appender.setEncoder(encoder);
-      appender.start();
-
-      rootLogger.addAppender(appender);
-      rootLogger.setLevel(Level.WARN);
-      rootLogger.setAdditive(false);
-   }
+//   static
+//   {
+//      ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+//      LoggerContext loggerContext = rootLogger.getLoggerContext();
+//      // we are not interested in auto-configuration
+//      loggerContext.reset();
+//
+//      PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+//      encoder.setContext(loggerContext);
+//      encoder.setPattern("[%level] %date{EEE hh:mm a} %message%n");
+//      encoder.start();
+//
+//      ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<ILoggingEvent>();
+//      appender.setContext(loggerContext);
+//      appender.setEncoder(encoder);
+//      appender.start();
+//
+//      rootLogger.addAppender(appender);
+//      rootLogger.setLevel(Level.WARN);
+//      rootLogger.setAdditive(false);
+//   }
 
    public static final Logger getLogger(Class<?> clazz)
    {
@@ -94,28 +87,33 @@ public class LogTools
    //      };
    //   }
 
-   public class MySampleLayout extends LayoutBase<ILoggingEvent>
-   {
-      public String doLayout(ILoggingEvent event) {
-         StringBuffer sbuf = new StringBuffer(128);
-         //         sbuf.append(event.getTimeStamp() - event.getLoggingContextVO.getBirthTime());
-         //         sbuf.append(" ");
-         sbuf.append("[");
-         sbuf.append(event.getLevel());
-         //         sbuf.append(event.getThreadName());
-         sbuf.append("] ");
-         //         sbuf.append(event.getLoggerName();
-         //         sbuf.append(" - ");
-         sbuf.append(event.getFormattedMessage());
-         sbuf.append(CoreConstants.LINE_SEPARATOR);
-         return sbuf.toString();
-      }
-   }
+//   public class MySampleLayout extends LayoutBase<ILoggingEvent>
+//   {
+//      public String doLayout(ILoggingEvent event) {
+//         StringBuffer sbuf = new StringBuffer(128);
+//         //         sbuf.append(event.getTimeStamp() - event.getLoggingContextVO.getBirthTime());
+//         //         sbuf.append(" ");
+//         sbuf.append("[");
+//         sbuf.append(event.getLevel());
+//         //         sbuf.append(event.getThreadName());
+//         sbuf.append("] ");
+//         //         sbuf.append(event.getLoggerName();
+//         //         sbuf.append(" - ");
+//         sbuf.append(event.getFormattedMessage());
+//         sbuf.append(CoreConstants.LINE_SEPARATOR);
+//         return sbuf.toString();
+//      }
+//   }
 
    public static void error(String message)
    {
       Throwable throwable = new Throwable();
       getLogger(className(throwable)).error(log(null, message, throwable));
+   }
+
+   public static void error(Logger logger, String message)
+   {
+      logger.error(log(null, message, new Throwable()));
    }
 
    public static void warn(String message)
@@ -124,10 +122,20 @@ public class LogTools
       getLogger(className(throwable)).warn(log(null, message, throwable));
    }
 
+   public static void warn(Logger logger, String message)
+   {
+      logger.warn(log(null, message, new Throwable()));
+   }
+
    public static void info(String message)
    {
       Throwable throwable = new Throwable();
       getLogger(className(throwable)).info(log(null, message, throwable));
+   }
+
+   public static void info(Logger logger, String message)
+   {
+      warn(log(null, message, new Throwable()));
    }
 
    public static void debug(String message)
@@ -136,25 +144,22 @@ public class LogTools
       getLogger(className(throwable)).debug(log(null, message, throwable));
    }
 
-   public static void error(Logger logger, String message)
-   {
-      logger.error(log(null, message, new Throwable()));
-   }
-
-   public static void warn(Logger logger, String message)
-   {
-      logger.warn(log(null, message, new Throwable()));
-   }
-
-   public static void info(Logger logger, String message)
-   {
-      warn(log(null, message, new Throwable()));
-   }
-
    public static void debug(Logger logger, String message)
    {
       logger.debug(log(null, message, new Throwable()));
    }
+
+   public static void trace(String message)
+   {
+      Throwable throwable = new Throwable();
+      getLogger(className(throwable)).trace(log(null, message, throwable));
+   }
+
+   public static void trace(Logger logger, String message)
+   {
+      logger.trace(log(null, message, new Throwable()));
+   }
+
 
    private static String className(Throwable throwable)
    {
@@ -191,7 +196,7 @@ public class LogTools
             className = ((Class<?>) containingObjectOrClass).getSimpleName();
       }
 
-      String clickableLocation = "(" + className + ":" + lineNumber + ")";
+      String clickableLocation = "(" + className + ".java:" + lineNumber + ")";
 
       return clickableLocation + ": " + message;
    }
