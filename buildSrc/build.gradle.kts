@@ -3,14 +3,22 @@ import com.gradle.publish.PluginConfig
 
 plugins {
    `java-gradle-plugin`
+   kotlin("jvm") version "1.2.61"
    id("com.gradle.plugin-publish") version "0.9.9"
 }
 
 group = "us.ihmc"
 version = "0.0.2"
 
+repositories {
+   mavenCentral()
+   jcenter()
+}
+
 dependencies {
    compile(gradleApi())
+   compile(kotlin("stdlib"))
+   runtimeOnly(kotlin("runtime"))
 }
 
 gradlePlugin {
