@@ -2,41 +2,54 @@ package us.ihmc.log
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import kotlin.reflect.KClass
+import org.gradle.api.plugins.ApplicationPluginConvention
+import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.testing.Test
 
 class LogToolsPlugin : Plugin<Project>
 {
-   // meta class
-   data class PropertyDefinition<T : Any>(val name: String, val klass: KClass<T>)
-
-   // property definitions
-   val LOG_LEVEL = PropertyDefinition("logLevel", LogLevel::class)
-
-   // property value holders
    class NotSet
-
-   data class LogLevel(val value: String)
+   val javaProperties = hashMapOf<String, String>()
+   open class LogLevelExtension(val javaProperties: Map<String, String>)
 
    override fun apply(project: Project)
    {
-      val logLevel = loadProperty(project, "logLevel")
-      if (logLevel is String)
+      val ihmcLogLevel = acceptStringProperty(project, "ihmcLogLevel")
+      if (ihmcLogLevel is String)
       {
+         javaProperties.put("ihmc.log.level", ihmcLogLevel)
+      }
 
+      project.extensions.create("logTools", LogLevelExtension::class.java, javaProperties)
+
+      for (allproject in project.allprojects)
+      {
+         allproject.tasks.withType(JavaExec::class.java) { javaExec -> // setup properties for all JavaExec tasks
+            javaExec.systemProperties.putAll(javaProperties)
+            allproject.logger.info("[log-tools] ${allproject.name}: $javaExec: properties: ${javaExec.systemProperties}")
+         }
+         allproject.tasks.withType(Test::class.java) { test -> // setup properties for forked test jvms
+
+            test.systemProperties.putAll(javaProperties)
+            allproject.logger.info("[log-tools] ${allproject.name}: $test: systemProperties: ${test.systemProperties}")
+         }
       }
    }
 
-   fun loadProperty(project: Project, name: String): Any
+   fun acceptStringProperty(project: Project, name: String): Any
    {
       if (project.properties.containsKey(name))
       {
          val property = project.properties[name]
          if (property != null && property is String)
          {
-            return property.trim().toLowerCase()
+            val toLowerCase = property.trim().toLowerCase()
+            project.logger.info("[log-tools] Loaded $name = $toLowerCase")
+            return toLowerCase
          }
       }
 
+      project.logger.info("[log-tools] Could not find property: $name")
       return NotSet()
    }
 }
