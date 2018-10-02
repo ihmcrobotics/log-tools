@@ -35,9 +35,9 @@ ihmc.sourceSetProject("test").dependencies {
    runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.1")
 }
 
-// test application plugin receives java properties (note: copy LogToolsDemo to main set to run this)
+// test that application plugin receives java properties (note: uncomment LogTools main to run this)
 application {
-   mainClassName = "us.ihmc.log.LogToolsDemo"
+   mainClassName = "us.ihmc.log.LogTools"
 }
 
 // test that custom JavaExec tasks receive the log level from Gradle properties
@@ -46,7 +46,7 @@ ihmc.sourceSetProject("test").tasks.register("runDemo", JavaExec::class.java) {
    main = "us.ihmc.log.LogToolsDemo"
 }
 
-// test test jvms get the Gradle properties
+// test that test jvms get the Gradle properties
 ihmc.sourceSetProject("test").tasks.withType<Test> {
    useJUnitPlatform()
 

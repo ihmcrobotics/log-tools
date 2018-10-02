@@ -2,7 +2,7 @@ package us.ihmc.log
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.ApplicationPluginConvention
+import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.testing.Test
 
@@ -32,6 +32,16 @@ class LogToolsPlugin : Plugin<Project>
 
             test.systemProperties.putAll(javaProperties)
             allproject.logger.info("[log-tools] ${allproject.name}: $test: systemProperties: ${test.systemProperties}")
+         }
+         val application = allproject.extensions.findByType(JavaApplication::class.java)
+         if (application != null)
+         {
+            val list = arrayListOf<String>()
+            javaProperties.forEach {
+               list.add("-D${it.key}=${it.value}")
+               allproject.logger.info("[log-tools] ${allproject.name}: $application: jvmArg: -D${it.key}=${it.value}")
+            }
+            application.setApplicationDefaultJvmArgs(list)
          }
       }
    }
