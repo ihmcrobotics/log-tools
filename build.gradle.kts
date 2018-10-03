@@ -31,8 +31,9 @@ dependencies {
 }
 
 ihmc.sourceSetProject("test").dependencies {
-   compile("org.junit.jupiter:junit-jupiter-api:5.3.1")
+   implementation("org.junit.jupiter:junit-jupiter-api:5.3.1")
    runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.1")
+   compile("us.ihmc:ihmc-commons-testing:0.23.1")
 }
 
 // test that application plugin receives java properties (note: uncomment LogTools main to run this)
@@ -49,6 +50,18 @@ ihmc.sourceSetProject("test").tasks.register("runDemo", JavaExec::class.java) {
 // test that test jvms get the Gradle properties
 ihmc.sourceSetProject("test").tasks.withType<Test> {
    useJUnitPlatform()
+
+   ihmc.sourceSetProject("test").configurations.compile.files.forEach {
+      if (it.name.contains("java-allocation-instrumenter"))
+      {
+         val jvmArg = "-javaagent:" + it.getAbsolutePath()
+         println("[ihmc-commons] Passing JVM arg: " + jvmArg)
+         val tmpArgs = allJvmArgs
+         tmpArgs.add(jvmArg)
+         allJvmArgs = tmpArgs
+
+      }
+   }
 
    doFirst {
       testLogging {
