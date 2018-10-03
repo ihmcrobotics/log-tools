@@ -17,7 +17,12 @@ class LogToolsPlugin : Plugin<Project>
       val ihmcLogLevel = acceptStringProperty(project, "ihmcLogLevel")
       if (ihmcLogLevel is String)
       {
-         javaProperties.put("ihmc.log.level", ihmcLogLevel)
+         javaProperties.put("log.level.us.ihmc", ihmcLogLevel)
+      }
+      val rootLogLevel = acceptStringProperty(project, "rootLogLevel")
+      if (rootLogLevel is String)
+      {
+         javaProperties.put("log.level.root", rootLogLevel)
       }
 
       project.extensions.create("logTools", LogLevelExtension::class.java, javaProperties)
