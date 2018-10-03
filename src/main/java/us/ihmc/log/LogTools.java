@@ -36,13 +36,9 @@ public class LogTools
    static
    {
       String granular = System.getProperty("log.granular");
-      if (granular != null && granular instanceof String)
+      if (granular != null && granular.trim().toLowerCase().contains("true"))
       {
-         String granularString = (String) granular;
-         if (granularString.trim().toLowerCase().contains("true"))
-         {
-            GRANULAR_MODE = true;
-         }
+         GRANULAR_MODE = true;
       }
 
       for (Object key : System.getProperties().keySet())
