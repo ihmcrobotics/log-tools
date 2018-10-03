@@ -10,18 +10,6 @@ import java.util.function.Supplier;
 
 public class LogTools
 {
-   /** Keep a list of loggers, so we don't recreate a bunch of formatters */
-   private static final HashMap<String, Logger> loggers = new HashMap<>();
-
-   /**
-    * Unless granular mode is enabled, all log messages go through the IHMC root logger,
-    * named "us.ihmc" after the common package containing all IHMC code.
-    *
-    * Note: Even if code is not in the package "us.ihmc", it will still use the
-    * IHMC root logger unless granular mode enabled.
-    */
-   private static final String IHMC_ROOT_LOGGER_NAME = "us.ihmc";
-
    /**
     * Granular mode is enabled with -Dlog.granular=true and allows the user to set
     * levels based on package and class name.
@@ -33,6 +21,8 @@ public class LogTools
     */
    private static boolean GRANULAR_MODE = false;
 
+   // This block runs when the first call to LogTools happens and the class is loaded
+   // into the JVM.
    static
    {
       String granular = System.getProperty("log.granular");
@@ -98,34 +88,49 @@ public class LogTools
       }
    }
 
-   public static final Logger getLogger(Class<?> clazz)
-   {
-      return LogManager.getLogger(clazz);
-   }
+   /**
+    * Unless granular mode is enabled, all log messages go through the IHMC root logger,
+    * named "us.ihmc" after the common package containing all IHMC code.
+    *
+    * Note: Even if code is not in the package "us.ihmc", it will still use the
+    * IHMC root logger unless granular mode enabled.
+    */
+   private static final String IHMC_ROOT_LOGGER_NAME = "us.ihmc";
 
-   private static final Logger getLog4J2Logger(String loggerName)
-   {
-      checkLoggerCreated(loggerName);
+   /**
+    * Keep a list of loggers, so we don't recreate a bunch of formatters.
+    */
+   private static final HashMap<String, Logger> loggers = GRANULAR_MODE ? new HashMap<>() : null;
 
-      return loggers.get(loggerName);
-   }
-
-   private static void checkLoggerCreated(String loggerName)
+   /**
+    * Gets or retrieves a logger instance by name.
+    */
+   private static final Logger getLogger(String loggerName)
    {
-      if (!loggers.containsKey(loggerName))
+      if (!GRANULAR_MODE)
+         throw new RuntimeException("getLogger() should never be called when GRANULAR_MODE = false");
+
+      Logger maybeLogger = loggers.get(loggerName);
+      if (maybeLogger != null)
       {
-         StackTraceElement origin = origin();
-
+         return maybeLogger;
+      }
+      else
+      {
          Logger logger = LogManager.getLogger(loggerName);
-
-         // Track the loggers that use this class
          loggers.put(loggerName, logger);
+         return logger;
       }
    }
 
+   /**
+    * The IHMC root logger instance.
+    */
+   private static final Logger IHMC_ROOT_LOGGER = GRANULAR_MODE ? getLogger(IHMC_ROOT_LOGGER_NAME) : LogManager.getLogger(IHMC_ROOT_LOGGER_NAME);
+
    private static StackTraceElement origin()
    {
-      return Thread.currentThread().getStackTrace()[2];
+      return Thread.currentThread().getStackTrace()[4];
    }
 
    private static String format(StackTraceElement origin, String message)
@@ -135,254 +140,325 @@ public class LogTools
 
    private static String clickableCoordinatePrefix(StackTraceElement origin)
    {
-      return "(" + className(origin) + ":" + origin.getLineNumber() + "): ";
+      return "(" + classSimpleName(origin) + ":" + origin.getLineNumber() + "): ";
    }
 
-   private static String className(StackTraceElement origin)
+   private static String classSimpleName(StackTraceElement origin)
    {
       String[] classNameSplit = origin.getClassName().split("\\.");
       return classNameSplit[classNameSplit.length - 1].split("\\$")[0];
    }
 
+   private static String classFromOrigin(StackTraceElement origin)
+   {
+      return origin.getClassName().replaceAll("\\$", ".");
+   }
+
    // BEGIN BOILERPLATE API
 
-   private static void logIfEnabled(String loggerName, Level level, String message)
+   private static void logIfEnabled(Level level, String message)
    {
-      Logger logger = getLog4J2Logger(loggerName);
-      if (logger.isEnabled(level))
+      if (!GRANULAR_MODE) // default, realtime safe mode
       {
-         StackTraceElement origin = origin();
-         logger.log(level, format(origin, message));
+         if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
+         {
+            StackTraceElement origin = origin(); // here it is OK to start allocating, this log message is enabled
+            IHMC_ROOT_LOGGER.log(level, format(origin, message));
+         }
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         if (logger.isEnabled(level))
+         {
+            logger.log(level, format(origin, message));
+         }
       }
    }
 
-   private static void logIfEnabled(String loggerName, Level level, Supplier<?> msgSupplier)
+   private static void logIfEnabled(Level level, Supplier<?> msgSupplier)
    {
-      Logger logger = getLog4J2Logger(loggerName);
-      if (logger.isEnabled(level))
+      if (!GRANULAR_MODE) // default, realtime safe mode
       {
-         StackTraceElement origin = origin();
-         logger.log(level, format(origin, msgSupplier.get().toString()));
+         if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
+         {
+            StackTraceElement origin = origin(); // here it is OK to start allocating, this log message is enabled
+            IHMC_ROOT_LOGGER.log(level, format(origin, msgSupplier.get().toString()));
+         }
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         if (logger.isEnabled(level))
+         {
+            logger.log(level, format(origin, msgSupplier.get().toString()));
+         }
       }
    }
 
-   private static void logIfEnabled(String loggerName, Level level, String message, Supplier<?> msgSupplier)
+   private static void logIfEnabled(Level level, String message, Supplier<?> msgSupplier)
    {
-      Logger logger = getLog4J2Logger(loggerName);
-      if (logger.isEnabled(level))
+      if (!GRANULAR_MODE) // default, realtime safe mode
       {
-         StackTraceElement origin = origin();
-         logger.log(level, format(origin, message), msgSupplier);
+         if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
+         {
+            StackTraceElement origin = origin(); // here it is OK to start allocating, this log message is enabled
+            IHMC_ROOT_LOGGER.log(level, format(origin, message), msgSupplier);
+         }
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         if (logger.isEnabled(level))
+         {
+            logger.log(level, format(origin, message), msgSupplier);
+         }
       }
    }
 
-   private static void logIfEnabled(String loggerName, Level level, String message, Object p0)
+   private static void logIfEnabled(Level level, String message, Object p0)
    {
-      Logger logger = getLog4J2Logger(loggerName);
-      if (logger.isEnabled(level))
+      if (!GRANULAR_MODE) // default, realtime safe mode
       {
-         StackTraceElement origin = origin();
-         logger.log(level, format(origin, message), p0);
+         if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
+         {
+            StackTraceElement origin = origin(); // here it is OK to start allocating, this log message is enabled
+            IHMC_ROOT_LOGGER.log(level, format(origin, message), p0);
+         }
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         if (logger.isEnabled(level))
+         {
+            logger.log(level, format(origin, message), p0);
+         }
       }
    }
 
-   private static void logIfEnabled(String loggerName, Level level, String message, Object p0, Object p1)
+   private static void logIfEnabled(Level level, String message, Object p0, Object p1)
    {
-      Logger logger = getLog4J2Logger(loggerName);
-      if (logger.isEnabled(level))
+      if (!GRANULAR_MODE) // default, realtime safe mode
       {
-         StackTraceElement origin = origin();
-         logger.log(level, format(origin, message), p0, p1);
+         if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
+         {
+            StackTraceElement origin = origin(); // here it is OK to start allocating, this log message is enabled
+            IHMC_ROOT_LOGGER.log(level, format(origin, message), p0, p1);
+         }
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         if (logger.isEnabled(level))
+         {
+            logger.log(level, format(origin, message), p0, p1);
+         }
       }
    }
 
-   private static void logIfEnabled(String loggerName, Level level, String message, Object p0, Object p1, Object p2)
+   private static void logIfEnabled(Level level, String message, Object p0, Object p1, Object p2)
    {
-      Logger logger = getLog4J2Logger(loggerName);
-      if (logger.isEnabled(level))
+      if (!GRANULAR_MODE) // default, realtime safe mode
       {
-         StackTraceElement origin = origin();
-         logger.log(level, format(origin, message), p0, p1, p2);
+         if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
+         {
+            StackTraceElement origin = origin(); // here it is OK to start allocating, this log message is enabled
+            IHMC_ROOT_LOGGER.log(level, format(origin, message), p0, p1, p2);
+         }
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         if (logger.isEnabled(level))
+         {
+            logger.log(level, format(origin, message), p0, p1, p2);
+         }
       }
    }
 
    public static void fatal(String message)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, message);
+      logIfEnabled(Level.FATAL, message);
    }
 
    public static void fatal(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, msgSupplier);
+      logIfEnabled(Level.FATAL, msgSupplier);
    }
 
    public static void fatal(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, message, msgSupplier);
+      logIfEnabled(Level.FATAL, message, msgSupplier);
    }
 
    public static void fatal(String message, Object p0)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, message, p0);
+      logIfEnabled(Level.FATAL, message, p0);
    }
 
    public static void fatal(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, message, p0, p1);
+      logIfEnabled(Level.FATAL, message, p0, p1);
    }
 
    public static void fatal(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, message, p0, p1, p2);
+      logIfEnabled(Level.FATAL, message, p0, p1, p2);
    }
 
    public static void error(String message)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, message);
+      logIfEnabled(Level.ERROR, message);
    }
 
    public static void error(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, msgSupplier);
+      logIfEnabled(Level.ERROR, msgSupplier);
    }
 
    public static void error(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, message, msgSupplier);
+      logIfEnabled(Level.ERROR, message, msgSupplier);
    }
 
    public static void error(String message, Object p0)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, message, p0);
+      logIfEnabled(Level.ERROR, message, p0);
    }
 
    public static void error(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, message, p0, p1);
+      logIfEnabled(Level.ERROR, message, p0, p1);
    }
 
    public static void error(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, message, p0, p1, p2);
+      logIfEnabled(Level.ERROR, message, p0, p1, p2);
    }
 
    public static void warn(String message)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, message);
+      logIfEnabled(Level.WARN, message);
    }
 
    public static void warn(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, msgSupplier);
+      logIfEnabled(Level.WARN, msgSupplier);
    }
 
    public static void warn(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, message, msgSupplier);
+      logIfEnabled(Level.WARN, message, msgSupplier);
    }
 
    public static void warn(String message, Object p0)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, message, p0);
+      logIfEnabled(Level.WARN, message, p0);
    }
 
    public static void warn(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, message, p0, p1);
+      logIfEnabled(Level.WARN, message, p0, p1);
    }
 
    public static void warn(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, message, p0, p1, p2);
+      logIfEnabled(Level.WARN, message, p0, p1, p2);
    }
 
    public static void info(String message)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, message);
+      logIfEnabled(Level.INFO, message);
    }
 
    public static void info(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, msgSupplier);
+      logIfEnabled(Level.INFO, msgSupplier);
    }
 
    public static void info(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, message, msgSupplier);
+      logIfEnabled(Level.INFO, message, msgSupplier);
    }
 
    public static void info(String message, Object p0)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, message, p0);
+      logIfEnabled(Level.INFO, message, p0);
    }
 
    public static void info(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, message, p0, p1);
+      logIfEnabled(Level.INFO, message, p0, p1);
    }
 
    public static void info(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, message, p0, p1, p2);
+      logIfEnabled(Level.INFO, message, p0, p1, p2);
    }
 
    public static void debug(String message)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, message);
+      logIfEnabled(Level.DEBUG, message);
    }
 
    public static void debug(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, msgSupplier);
+      logIfEnabled(Level.DEBUG, msgSupplier);
    }
 
    public static void debug(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, message, msgSupplier);
+      logIfEnabled(Level.DEBUG, message, msgSupplier);
    }
 
    public static void debug(String message, Object p0)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, message, p0);
+      logIfEnabled(Level.DEBUG, message, p0);
    }
 
    public static void debug(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, message, p0, p1);
+      logIfEnabled(Level.DEBUG, message, p0, p1);
    }
 
    public static void debug(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, message, p0, p1, p2);
+      logIfEnabled(Level.DEBUG, message, p0, p1, p2);
    }
 
    public static void trace(String message)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, message);
+      logIfEnabled(Level.TRACE, message);
    }
 
    public static void trace(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, msgSupplier);
+      logIfEnabled(Level.TRACE, msgSupplier);
    }
 
    public static void trace(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, message, msgSupplier);
+      logIfEnabled(Level.TRACE, message, msgSupplier);
    }
 
    public static void trace(String message, Object p0)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, message, p0);
+      logIfEnabled(Level.TRACE, message, p0);
    }
 
    public static void trace(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, message, p0, p1);
+      logIfEnabled(Level.TRACE, message, p0, p1);
    }
 
    public static void trace(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, message, p0, p1, p2);
+      logIfEnabled(Level.TRACE, message, p0, p1, p2);
    }
 }
