@@ -13,12 +13,57 @@ public class LogTools
    /** Keep a list of loggers, so we don't recreate a bunch of formatters */
    private static final HashMap<String, Logger> loggers = new HashMap<>();
 
-   private static final String IHMC_DEFAULT_LOGGER_NAME = "us.ihmc";
+   /**
+    * Unless granular mode is enabled, all log messages go through the IHMC root logger,
+    * named "us.ihmc" after the common package containing all IHMC code.
+    *
+    * Note: Even if code is not in the package "us.ihmc", it will still use the
+    * IHMC root logger unless granular mode enabled.
+    */
+   private static final String IHMC_ROOT_LOGGER_NAME = "us.ihmc";
+
+   /**
+    * Granular mode is enabled with -Dlog.granular=true and allows the user to set
+    * levels based on package and class name.
+    *
+    * This mode is disabled by default to remove the need to allocate Throwables
+    * to find out which logger to check is enabled. This both provides realtime
+    * safety and removes cost of having many low level log statements (i.e. DEBUG,
+    * TRACE).
+    */
+   private static boolean GRANULAR_MODE = false;
 
    static
    {
-      setLevel("log.level.root", LogManager.ROOT_LOGGER_NAME);
-      setLevel("log.level.us.ihmc", IHMC_DEFAULT_LOGGER_NAME);
+      String granular = System.getProperty("log.granular");
+      if (granular != null && granular instanceof String)
+      {
+         String granularString = (String) granular;
+         if (granularString.trim().toLowerCase().contains("true"))
+         {
+            GRANULAR_MODE = true;
+         }
+      }
+
+      for (Object key : System.getProperties().keySet())
+      {
+         if (key instanceof String)
+         {
+            String stringKey = (String) key;
+            if (stringKey.startsWith("log.level"))
+            {
+               String afterLogLevel = stringKey.substring(9);
+               if (afterLogLevel.isEmpty() || afterLogLevel.equals(".")) // root level
+               {
+                  setLevel(stringKey, LogManager.ROOT_LOGGER_NAME);
+               }
+               else if (afterLogLevel.startsWith(".")) // custom level
+               {
+                  setLevel(stringKey, afterLogLevel.substring(1));
+               }
+            }
+         }
+      }
    }
 
    private static void setLevel(String propertyName, String group)
@@ -62,21 +107,23 @@ public class LogTools
       return LogManager.getLogger(clazz);
    }
 
-   public static final Logger getLogger(String loggerName)
+   private static final Logger getLog4J2Logger(String loggerName)
    {
       checkLoggerCreated(loggerName);
 
       return loggers.get(loggerName);
    }
 
-   private static void checkLoggerCreated(String className)
+   private static void checkLoggerCreated(String loggerName)
    {
-      if (!loggers.containsKey(className))
+      if (!loggers.containsKey(loggerName))
       {
-         Logger logger = LogManager.getLogger(className);
+         StackTraceElement origin = origin();
+
+         Logger logger = LogManager.getLogger(loggerName);
 
          // Track the loggers that use this class
-         loggers.put(className, logger);
+         loggers.put(loggerName, logger);
       }
    }
 
@@ -105,7 +152,7 @@ public class LogTools
 
    private static void logIfEnabled(String loggerName, Level level, String message)
    {
-      Logger logger = getLogger(loggerName);
+      Logger logger = getLog4J2Logger(loggerName);
       if (logger.isEnabled(level))
       {
          StackTraceElement origin = origin();
@@ -115,7 +162,7 @@ public class LogTools
 
    private static void logIfEnabled(String loggerName, Level level, Supplier<?> msgSupplier)
    {
-      Logger logger = getLogger(loggerName);
+      Logger logger = getLog4J2Logger(loggerName);
       if (logger.isEnabled(level))
       {
          StackTraceElement origin = origin();
@@ -125,7 +172,7 @@ public class LogTools
 
    private static void logIfEnabled(String loggerName, Level level, String message, Supplier<?> msgSupplier)
    {
-      Logger logger = getLogger(loggerName);
+      Logger logger = getLog4J2Logger(loggerName);
       if (logger.isEnabled(level))
       {
          StackTraceElement origin = origin();
@@ -135,7 +182,7 @@ public class LogTools
 
    private static void logIfEnabled(String loggerName, Level level, String message, Object p0)
    {
-      Logger logger = getLogger(loggerName);
+      Logger logger = getLog4J2Logger(loggerName);
       if (logger.isEnabled(level))
       {
          StackTraceElement origin = origin();
@@ -145,7 +192,7 @@ public class LogTools
 
    private static void logIfEnabled(String loggerName, Level level, String message, Object p0, Object p1)
    {
-      Logger logger = getLogger(loggerName);
+      Logger logger = getLog4J2Logger(loggerName);
       if (logger.isEnabled(level))
       {
          StackTraceElement origin = origin();
@@ -155,7 +202,7 @@ public class LogTools
 
    private static void logIfEnabled(String loggerName, Level level, String message, Object p0, Object p1, Object p2)
    {
-      Logger logger = getLogger(loggerName);
+      Logger logger = getLog4J2Logger(loggerName);
       if (logger.isEnabled(level))
       {
          StackTraceElement origin = origin();
@@ -165,181 +212,181 @@ public class LogTools
 
    public static void fatal(String message)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.FATAL, message);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, message);
    }
 
    public static void fatal(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.FATAL, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, msgSupplier);
    }
 
    public static void fatal(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.FATAL, message, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, message, msgSupplier);
    }
 
    public static void fatal(String message, Object p0)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.FATAL, message, p0);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, message, p0);
    }
 
    public static void fatal(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.FATAL, message, p0, p1);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, message, p0, p1);
    }
 
    public static void fatal(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.FATAL, message, p0, p1, p2);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.FATAL, message, p0, p1, p2);
    }
 
    public static void error(String message)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.ERROR, message);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, message);
    }
 
    public static void error(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.ERROR, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, msgSupplier);
    }
 
    public static void error(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.ERROR, message, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, message, msgSupplier);
    }
 
    public static void error(String message, Object p0)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.ERROR, message, p0);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, message, p0);
    }
 
    public static void error(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.ERROR, message, p0, p1);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, message, p0, p1);
    }
 
    public static void error(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.ERROR, message, p0, p1, p2);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.ERROR, message, p0, p1, p2);
    }
 
    public static void warn(String message)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.WARN, message);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, message);
    }
 
    public static void warn(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.WARN, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, msgSupplier);
    }
 
    public static void warn(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.WARN, message, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, message, msgSupplier);
    }
 
    public static void warn(String message, Object p0)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.WARN, message, p0);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, message, p0);
    }
 
    public static void warn(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.WARN, message, p0, p1);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, message, p0, p1);
    }
 
    public static void warn(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.WARN, message, p0, p1, p2);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.WARN, message, p0, p1, p2);
    }
 
    public static void info(String message)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.INFO, message);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, message);
    }
 
    public static void info(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.INFO, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, msgSupplier);
    }
 
    public static void info(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.INFO, message, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, message, msgSupplier);
    }
 
    public static void info(String message, Object p0)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.INFO, message, p0);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, message, p0);
    }
 
    public static void info(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.INFO, message, p0, p1);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, message, p0, p1);
    }
 
    public static void info(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.INFO, message, p0, p1, p2);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.INFO, message, p0, p1, p2);
    }
 
    public static void debug(String message)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.DEBUG, message);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, message);
    }
 
    public static void debug(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.DEBUG, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, msgSupplier);
    }
 
    public static void debug(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.DEBUG, message, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, message, msgSupplier);
    }
 
    public static void debug(String message, Object p0)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.DEBUG, message, p0);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, message, p0);
    }
 
    public static void debug(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.DEBUG, message, p0, p1);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, message, p0, p1);
    }
 
    public static void debug(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.DEBUG, message, p0, p1, p2);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.DEBUG, message, p0, p1, p2);
    }
 
    public static void trace(String message)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.TRACE, message);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, message);
    }
 
    public static void trace(Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.TRACE, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, msgSupplier);
    }
 
    public static void trace(String message, Supplier<?> msgSupplier)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.TRACE, message, msgSupplier);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, message, msgSupplier);
    }
 
    public static void trace(String message, Object p0)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.TRACE, message, p0);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, message, p0);
    }
 
    public static void trace(String message, Object p0, Object p1)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.TRACE, message, p0, p1);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, message, p0, p1);
    }
 
    public static void trace(String message, Object p0, Object p1, Object p2)
    {
-      logIfEnabled(IHMC_DEFAULT_LOGGER_NAME, Level.TRACE, message, p0, p1, p2);
+      logIfEnabled(IHMC_ROOT_LOGGER_NAME, Level.TRACE, message, p0, p1, p2);
    }
 }
