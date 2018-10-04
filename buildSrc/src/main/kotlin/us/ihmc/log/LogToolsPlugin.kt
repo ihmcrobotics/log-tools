@@ -8,21 +8,21 @@ import org.gradle.api.tasks.testing.Test
 
 class LogToolsPlugin : Plugin<Project>
 {
-   class NotSet
    val javaProperties = hashMapOf<String, String>()
    open class LogLevelExtension(val javaProperties: Map<String, String>)
 
    override fun apply(project: Project)
    {
-      val ihmcLogLevel = acceptStringProperty(project, "ihmcLogLevel")
-      if (ihmcLogLevel is String)
+      for (prop in project.properties) // go through all properties, as they are dynamically named
       {
-         javaProperties.put("log.level.us.ihmc", ihmcLogLevel)
-      }
-      val rootLogLevel = acceptStringProperty(project, "rootLogLevel")
-      if (rootLogLevel is String)
-      {
-         javaProperties.put("log.level.root", rootLogLevel)
+         if (prop.key is String && prop.value is String)
+         {
+            if (prop.key.startsWith("log.level") || prop.key.startsWith("log.granular"))
+            {
+               project.logger.info("[log-tools] Passing to all JVMs: -D${prop.key}=${prop.value}")
+               javaProperties.put(prop.key, prop.value as String)
+            }
+         }
       }
 
       project.extensions.create("logTools", LogLevelExtension::class.java, javaProperties)
@@ -49,22 +49,5 @@ class LogToolsPlugin : Plugin<Project>
             application.setApplicationDefaultJvmArgs(list)
          }
       }
-   }
-
-   fun acceptStringProperty(project: Project, name: String): Any
-   {
-      if (project.properties.containsKey(name))
-      {
-         val property = project.properties[name]
-         if (property != null && property is String)
-         {
-            val toLowerCase = property.trim().toLowerCase()
-            project.logger.info("[log-tools] Loaded $name = $toLowerCase")
-            return toLowerCase
-         }
-      }
-
-      project.logger.info("[log-tools] Could not find property: $name")
-      return NotSet()
    }
 }
