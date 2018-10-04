@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "us.ihmc"
-version = "0.1.0"
+version = "0.1.6"
 
 repositories {
    mavenCentral()
@@ -18,7 +18,7 @@ repositories {
 dependencies {
    compile(gradleApi())
    compile(kotlin("stdlib"))
-   runtimeOnly(kotlin("runtime"))
+//   runtimeOnly(kotlin("runtime"))
 }
 
 gradlePlugin {
