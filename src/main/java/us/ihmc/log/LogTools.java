@@ -11,6 +11,15 @@ import java.util.function.Supplier;
 public class LogTools
 {
    /**
+    * Unless granular mode is enabled, all log messages go through the IHMC root logger,
+    * named "us.ihmc" after the common package containing all IHMC code.
+    *
+    * Note: Even if code is not in the package "us.ihmc", it will still use the
+    * IHMC root logger unless granular mode enabled.
+    */
+   private static final String IHMC_ROOT_LOGGER_NAME = "us.ihmc";
+
+   /**
     * Granular mode is enabled with -Dlog.granular=true and allows the user to set
     * levels based on package and class name.
     *
@@ -21,14 +30,24 @@ public class LogTools
     */
    private static boolean GRANULAR_MODE = false;
 
+   /**
+    * Boolean value to say that if the user sets the mode explicitly (i.e. -Dlog.granular=*)
+    * then don't let a custom level set override that (i.e. -Dlog.level.*=*
+    */
+   private static boolean GRANULAR_MODE_SET_EXPLICITLY = false;
+
    // This block runs when the first call to LogTools happens and the class is loaded
    // into the JVM.
    static
    {
       String granular = System.getProperty("log.granular");
-      if (granular != null && granular.trim().toLowerCase().contains("true"))
+      if (granular != null)
       {
-         GRANULAR_MODE = true;
+         GRANULAR_MODE_SET_EXPLICITLY = true; // the user set this mode, so don't auto switch
+         if (granular.trim().toLowerCase().contains("true"))
+         {
+            GRANULAR_MODE = true;
+         }
       }
 
       for (Object key : System.getProperties().keySet())
@@ -39,12 +58,18 @@ public class LogTools
             if (stringKey.startsWith("log.level"))
             {
                String afterLogLevel = stringKey.substring(9);
-               if (afterLogLevel.isEmpty() || afterLogLevel.equals(".")) // root level
+               if (afterLogLevel.isEmpty() || afterLogLevel.equals(".")) // setting log4j root level
                {
                   setLevel(stringKey, LogManager.ROOT_LOGGER_NAME);
                }
-               else if (afterLogLevel.startsWith(".")) // custom level
+               if (afterLogLevel.equals("." + IHMC_ROOT_LOGGER_NAME)) // setting ihmc root level
                {
+                  setLevel(stringKey, IHMC_ROOT_LOGGER_NAME); // don't auto switch to granular
+               }
+               else if (afterLogLevel.startsWith(".")) // granular level set
+               {
+                  if (!GRANULAR_MODE_SET_EXPLICITLY) // if the user hasn't explicitly set granular mode
+                     GRANULAR_MODE = true;           // auto switch to that mode, otherwise this property would not make sense
                   setLevel(stringKey, afterLogLevel.substring(1));
                }
             }
@@ -87,15 +112,6 @@ public class LogTools
          }
       }
    }
-
-   /**
-    * Unless granular mode is enabled, all log messages go through the IHMC root logger,
-    * named "us.ihmc" after the common package containing all IHMC code.
-    *
-    * Note: Even if code is not in the package "us.ihmc", it will still use the
-    * IHMC root logger unless granular mode enabled.
-    */
-   private static final String IHMC_ROOT_LOGGER_NAME = "us.ihmc";
 
    /**
     * Keep a list of loggers, so we don't recreate a bunch of formatters.
