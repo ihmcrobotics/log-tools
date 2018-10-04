@@ -1,5 +1,7 @@
 package us.ihmc.log;
 
+import java.util.function.Supplier;
+
 import static us.ihmc.log.LogTools.*;
 
 public class LogToolsDemo
@@ -8,6 +10,8 @@ public class LogToolsDemo
    {
       new SubclassOne();
       LogTools.debug("Hello LogTools constructor");
+
+      Supplier<String> supplier = () -> "string" + "builder";
    }
 
    public class SubclassOne
@@ -31,7 +35,7 @@ public class LogToolsDemo
    {
       String demo_there = "Demo there";
       error(demo_there);
-      warn(demo_there);
+      warn("var1: {}, var2: {}", 9, false);
       info(demo_there);
       debug(demo_there);
       trace(demo_there);
