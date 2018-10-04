@@ -20,6 +20,16 @@ public class LogTools
    private static final String IHMC_ROOT_LOGGER_NAME = "us.ihmc";
 
    /**
+    * Keep a list of loggers, so we don't recreate a bunch of formatters.
+    */
+   private static HashMap<String, Logger> loggers;
+
+   /**
+    * The IHMC root logger instance.
+    */
+   private static Logger IHMC_ROOT_LOGGER;
+
+   /**
     * Granular mode is enabled with -Dlog.granular=true and allows the user to set
     * levels based on package and class name.
     *
@@ -36,45 +46,68 @@ public class LogTools
     */
    private static boolean GRANULAR_MODE_SET_EXPLICITLY = false;
 
+   /**
+    * Since apparently static blocks can get optimized away, must initialize manually.
+    */
+   private static boolean HAS_BEEN_INITIALIZED = false;
+
    // This block runs when the first call to LogTools happens and the class is loaded
    // into the JVM.
-   static
+   private static boolean maybeInitializeButGetGranularMode()
    {
-      String granular = System.getProperty("log.granular");
-      if (granular != null)
+      if (!HAS_BEEN_INITIALIZED)
       {
-         GRANULAR_MODE_SET_EXPLICITLY = true; // the user set this mode, so don't auto switch
-         if (granular.trim().toLowerCase().contains("true"))
+         String granular = System.getProperty("log.granular");
+         if (granular != null)
          {
-            GRANULAR_MODE = true;
-         }
-      }
-
-      for (Object key : System.getProperties().keySet())
-      {
-         if (key instanceof String)
-         {
-            String stringKey = (String) key;
-            if (stringKey.startsWith("log.level"))
+            GRANULAR_MODE_SET_EXPLICITLY = true; // the user set this mode, so don't auto switch
+            if (granular.trim().toLowerCase().contains("true"))
             {
-               String afterLogLevel = stringKey.substring(9);
-               if (afterLogLevel.isEmpty() || afterLogLevel.equals(".")) // setting log4j root level
+               GRANULAR_MODE = true;
+            }
+         }
+
+         for (Object key : System.getProperties().keySet())
+         {
+            if (key instanceof String)
+            {
+               String stringKey = (String) key;
+               if (stringKey.startsWith("log.level"))
                {
-                  setLevel(stringKey, LogManager.ROOT_LOGGER_NAME);
-               }
-               else if (afterLogLevel.equals("." + IHMC_ROOT_LOGGER_NAME)) // setting ihmc root level
-               {
-                  setLevel(stringKey, IHMC_ROOT_LOGGER_NAME); // don't auto switch to granular
-               }
-               else if (afterLogLevel.startsWith(".")) // granular level set
-               {
-                  if (!GRANULAR_MODE_SET_EXPLICITLY) // if the user hasn't explicitly set granular mode
-                     GRANULAR_MODE = true;           // auto switch to that mode, otherwise this property would not make sense
-                  setLevel(stringKey, afterLogLevel.substring(1));
+                  String afterLogLevel = stringKey.substring(9);
+                  if (afterLogLevel.isEmpty() || afterLogLevel.equals(".")) // setting log4j root level
+                  {
+                     setLevel(stringKey, LogManager.ROOT_LOGGER_NAME);
+                  }
+                  else if (afterLogLevel.equals("." + IHMC_ROOT_LOGGER_NAME)) // setting ihmc root level
+                  {
+                     setLevel(stringKey, IHMC_ROOT_LOGGER_NAME); // don't auto switch to granular
+                  }
+                  else if (afterLogLevel.startsWith(".")) // granular level set
+                  {
+                     if (!GRANULAR_MODE_SET_EXPLICITLY) // if the user hasn't explicitly set granular mode
+                        GRANULAR_MODE = true;           // auto switch to that mode, otherwise this property would not make sense
+                     setLevel(stringKey, afterLogLevel.substring(1));
+                  }
                }
             }
          }
+
+         HAS_BEEN_INITIALIZED = true;
+
+         if (GRANULAR_MODE)
+         {
+            loggers = new HashMap<>();
+            IHMC_ROOT_LOGGER = getLogger(IHMC_ROOT_LOGGER_NAME);
+            info("Granular logging mode enabled. Not realtime safe.");
+         }
+         else
+         {
+            IHMC_ROOT_LOGGER = LogManager.getLogger(IHMC_ROOT_LOGGER_NAME);
+         }
       }
+
+      return GRANULAR_MODE;
    }
 
    private static void setLevel(String propertyName, String group)
@@ -114,11 +147,6 @@ public class LogTools
    }
 
    /**
-    * Keep a list of loggers, so we don't recreate a bunch of formatters.
-    */
-   private static final HashMap<String, Logger> loggers = GRANULAR_MODE ? new HashMap<>() : null;
-
-   /**
     * Gets or retrieves a logger instance by name.
     */
    private static final Logger getLogger(String loggerName)
@@ -136,19 +164,6 @@ public class LogTools
          Logger logger = LogManager.getLogger(loggerName);
          loggers.put(loggerName, logger);
          return logger;
-      }
-   }
-
-   /**
-    * The IHMC root logger instance.
-    */
-   private static final Logger IHMC_ROOT_LOGGER = GRANULAR_MODE ? getLogger(IHMC_ROOT_LOGGER_NAME) : LogManager.getLogger(IHMC_ROOT_LOGGER_NAME);
-
-   static
-   {
-      if (GRANULAR_MODE)
-      {
-         info("Granular logging mode enabled. Not realtime safe.");
       }
    }
 
@@ -182,7 +197,7 @@ public class LogTools
 
    private static void logIfEnabled(Level level, String message)
    {
-      if (!GRANULAR_MODE) // default, realtime safe mode
+      if (!maybeInitializeButGetGranularMode()) // default, realtime safe mode
       {
          if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
          {
@@ -203,7 +218,7 @@ public class LogTools
 
    private static void logIfEnabled(Level level, Supplier<?> msgSupplier)
    {
-      if (!GRANULAR_MODE) // default, realtime safe mode
+      if (!maybeInitializeButGetGranularMode()) // default, realtime safe mode
       {
          if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
          {
@@ -224,7 +239,7 @@ public class LogTools
 
    private static void logIfEnabled(Level level, String message, Supplier<?> msgSupplier)
    {
-      if (!GRANULAR_MODE) // default, realtime safe mode
+      if (!maybeInitializeButGetGranularMode()) // default, realtime safe mode
       {
          if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
          {
@@ -245,7 +260,7 @@ public class LogTools
 
    private static void logIfEnabled(Level level, String message, Object p0)
    {
-      if (!GRANULAR_MODE) // default, realtime safe mode
+      if (!maybeInitializeButGetGranularMode()) // default, realtime safe mode
       {
          if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
          {
@@ -266,7 +281,7 @@ public class LogTools
 
    private static void logIfEnabled(Level level, String message, Object p0, Object p1)
    {
-      if (!GRANULAR_MODE) // default, realtime safe mode
+      if (!maybeInitializeButGetGranularMode()) // default, realtime safe mode
       {
          if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
          {
@@ -287,7 +302,7 @@ public class LogTools
 
    private static void logIfEnabled(Level level, String message, Object p0, Object p1, Object p2)
    {
-      if (!GRANULAR_MODE) // default, realtime safe mode
+      if (!maybeInitializeButGetGranularMode()) // default, realtime safe mode
       {
          if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
          {
