@@ -62,7 +62,7 @@ public class LogTools
                {
                   setLevel(stringKey, LogManager.ROOT_LOGGER_NAME);
                }
-               if (afterLogLevel.equals("." + IHMC_ROOT_LOGGER_NAME)) // setting ihmc root level
+               else if (afterLogLevel.equals("." + IHMC_ROOT_LOGGER_NAME)) // setting ihmc root level
                {
                   setLevel(stringKey, IHMC_ROOT_LOGGER_NAME); // don't auto switch to granular
                }
@@ -143,6 +143,14 @@ public class LogTools
     * The IHMC root logger instance.
     */
    private static final Logger IHMC_ROOT_LOGGER = GRANULAR_MODE ? getLogger(IHMC_ROOT_LOGGER_NAME) : LogManager.getLogger(IHMC_ROOT_LOGGER_NAME);
+
+   static
+   {
+      if (GRANULAR_MODE)
+      {
+         info("Granular logging mode enabled. Not realtime safe.");
+      }
+   }
 
    private static StackTraceElement origin()
    {
