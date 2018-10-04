@@ -7,6 +7,7 @@ public class LogToolsDemo
    public LogToolsDemo()
    {
       new SubclassOne();
+      LogTools.debug("Hello LogTools constructor");
    }
 
    public class SubclassOne

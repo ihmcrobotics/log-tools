@@ -38,7 +38,7 @@ ihmc.sourceSetProject("test").dependencies {
 
 // test that application plugin receives java properties (note: uncomment LogTools main to run this)
 application {
-   mainClassName = "us.ihmc.log.LogTools"
+   mainClassName = "us.ihmc.log.LogToolsDemo"
 }
 
 // test that custom JavaExec tasks receive the log level from Gradle properties
