@@ -4,7 +4,7 @@ Configuration:
     Console:
       name: Console
       PatternLayout:
-        Pattern: "[%level] %date{EEE hh:mm a} %msg%n"
+        Pattern: "%date{EEE h:mm a} [%level] %msg%n"
 
   Loggers:
     Root:
