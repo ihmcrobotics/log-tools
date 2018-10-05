@@ -2,12 +2,24 @@ Configuration:
   status: warn
   appenders:
     Console:
-      name: Console
-      PatternLayout:
-        Pattern: "%date{EEE h:mm a} [%level] %msg%n"
+      -
+        name: IHMCAppender
+        PatternLayout:
+          Pattern: "%date{EEE h:mm a} [%level] %msg%n"
+      -
+        name: ExternalAppender
+        PatternLayout:
+          Pattern: "%date{EEE h:mm a} [%level] (%logger{36}): %msg%n"
 
   Loggers:
+    logger:
+      -
+        name: us.ihmc
+        level: info
+        additivity: false
+        AppenderRef:
+          ref: IHMCAppender
     Root:
-      level: info
+      level: error
       AppenderRef:
-        ref: Console
+        ref: ExternalAppender
