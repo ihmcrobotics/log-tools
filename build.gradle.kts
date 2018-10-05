@@ -12,7 +12,7 @@ plugins {
 
 ihmc {
    group = "us.ihmc"
-   version = "0.2.0"
+   version = "0.2.1"
    vcsUrl = "https://github.com/ihmcrobotics/log-tools"
    openSource = true
    maintainer = "Duncan Calvert <dcalvert@ihmc.us>"
