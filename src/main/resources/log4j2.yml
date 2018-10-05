@@ -5,11 +5,11 @@ Configuration:
       -
         name: IHMCAppender
         PatternLayout:
-          Pattern: "%date{EEE h:mm a} [%level] %msg%n"
+          Pattern: "%date{YYYYMMdd H:mm} [%level] %msg%n"
       -
         name: ExternalAppender
         PatternLayout:
-          Pattern: "%date{EEE h:mm a} [%level] (%logger{36}): %msg%n"
+          Pattern: "%date{YYYYMMdd H:mm} [%level] (%logger{36}): %msg%n"
 
   Loggers:
     logger:
