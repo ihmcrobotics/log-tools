@@ -4,6 +4,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.tasks.JavaExec
+import org.gradle.api.tasks.application.CreateStartScripts
 import org.gradle.api.tasks.testing.Test
 
 class LogToolsPlugin : Plugin<Project>
@@ -31,22 +32,19 @@ class LogToolsPlugin : Plugin<Project>
       {
          allproject.tasks.withType(JavaExec::class.java) { javaExec -> // setup properties for all JavaExec tasks
             javaExec.systemProperties.putAll(javaProperties)
-            allproject.logger.info("[log-tools] ${allproject.name}: $javaExec: properties: ${javaExec.systemProperties}")
+            allproject.logger.info("[log-tools] Passing JVM args ${javaExec.systemProperties} to $javaExec")
          }
          allproject.tasks.withType(Test::class.java) { test -> // setup properties for forked test jvms
-
             test.systemProperties.putAll(javaProperties)
-            allproject.logger.info("[log-tools] ${allproject.name}: $test: systemProperties: ${test.systemProperties}")
+            allproject.logger.info("[log-tools] Passing JVM args ${test.systemProperties} to $test")
          }
-         val application = allproject.extensions.findByType(JavaApplication::class.java)
-         if (application != null)
-         {
+         allproject.tasks.withType(CreateStartScripts::class.java) { startScripts -> // setup properties for all start scripts (includes application plugin)
             val list = arrayListOf<String>()
             javaProperties.forEach {
                list.add("-D${it.key}=${it.value}")
-               allproject.logger.info("[log-tools] ${allproject.name}: $application: jvmArg: -D${it.key}=${it.value}")
             }
-            application.setApplicationDefaultJvmArgs(list)
+            startScripts.defaultJvmOpts = list
+            allproject.logger.info("[log-tools] Passing JVM args $list to $startScripts")
          }
       }
    }
