@@ -165,7 +165,7 @@ public class LogTools
 
    private static String clickableCoordinatePrefix(StackTraceElement origin)
    {
-      return "(" + classSimpleName(origin) + ":" + origin.getLineNumber() + "): ";
+      return "(" + classSimpleName(origin) + ".java:" + origin.getLineNumber() + "): ";
    }
 
    private static String classSimpleName(StackTraceElement origin)
