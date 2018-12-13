@@ -61,6 +61,7 @@ public class LogTools
                if (afterLogLevel.isEmpty() || afterLogLevel.equals(".")) // setting log4j root level
                {
                   setLevel(stringKey, LogManager.ROOT_LOGGER_NAME);
+                  setLevel(stringKey, IHMC_ROOT_LOGGER_NAME); // also set the ihmc level, there are two loggers present, root and ihmc
                }
                else if (afterLogLevel.equals("." + IHMC_ROOT_LOGGER_NAME)) // setting ihmc root level
                {
