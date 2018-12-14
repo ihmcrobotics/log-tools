@@ -5,14 +5,13 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 
 plugins {
    `java-library`
-   application
    id("us.ihmc.ihmc-build") version "0.15.5"
    id("us.ihmc.log-tools")
 }
 
 ihmc {
    group = "us.ihmc"
-   version = "0.2.2"
+   version = "0.3.0"
    vcsUrl = "https://github.com/ihmcrobotics/log-tools"
    openSource = true
    maintainer = "Duncan Calvert <dcalvert@ihmc.us>"
@@ -28,17 +27,14 @@ dependencies {
    compile("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
    compile("com.fasterxml.jackson.core:jackson-databind:2.9.6")
    compile("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.6")
+   compile("org.fusesource.jansi:jansi:1.17.1")
+//   compile("com.mihnita:color-loggers:1.0.5")
 }
 
 ihmc.sourceSetProject("test").dependencies {
    implementation("org.junit.jupiter:junit-jupiter-api:5.3.1")
    runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.3.1")
    compile("us.ihmc:ihmc-commons-testing:0.23.1")
-}
-
-// test that application plugin receives java properties (note: uncomment LogTools main to run this)
-application {
-   mainClassName = "us.ihmc.log.LogToolsDemo"
 }
 
 // test that custom JavaExec tasks receive the log level from Gradle properties
