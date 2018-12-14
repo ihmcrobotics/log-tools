@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 
 import java.util.HashMap;
+import java.util.TreeSet;
 import java.util.function.Supplier;
 
 public class LogTools
@@ -50,7 +51,9 @@ public class LogTools
          }
       }
 
-      for (Object key : System.getProperties().keySet())
+      TreeSet<Object> sortedKeys = new TreeSet<>();  // sort the keys so the behavior is independent of property order
+      sortedKeys.addAll(System.getProperties().keySet());   // this also fixes a bug where levels should always be set breadth first
+      for (Object key : sortedKeys)
       {
          if (key instanceof String)
          {
