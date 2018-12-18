@@ -226,7 +226,7 @@ public final class HighlightConverter extends LogEventPatternConverter implement
     public void format(final LogEvent event, final StringBuilder toAppendTo) {
         int start = 0;
         int end = 0;
-        if (!noAnsi) { // use ANSI: set prefix
+        if (!noAnsi && event.getLevel() != Level.INFO) { // use ANSI: set prefix    <----------------  Don't color INFO
             start = toAppendTo.length();
             toAppendTo.append(levelStyles.get(event.getLevel()));
             end = toAppendTo.length();
@@ -240,11 +240,7 @@ public final class HighlightConverter extends LogEventPatternConverter implement
         // if we use ANSI we need to add the postfix or erase the unnecessary prefix
         final boolean empty = toAppendTo.length() == end;
         if (!noAnsi) {
-            if (empty) {
-                toAppendTo.setLength(start); // erase prefix
-            } else {
-                toAppendTo.append(defaultStyle); // add postfix
-            }
+            toAppendTo.append(defaultStyle); // add postfix                           <-----------------   Always add postfix
         }
     }
 

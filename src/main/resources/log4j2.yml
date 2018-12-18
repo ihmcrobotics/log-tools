@@ -6,21 +6,11 @@ Configuration:
         name: IHMCAppender
         target: SYSTEM_OUT
         PatternLayout:
-          Pattern: "%date{YYYYMMdd H:mm} [%level] %msg%n"
-        LevelRangeFilter:
-          minLevel: INFO
-          maxLevel: TRACE
-      -
-        name: IHMCErrorWarnAppender
-        PatternLayout:
-          Pattern: "%highlight{%date{YYYYMMdd H:mm} [%level] %msg%n}"
-        LevelRangeFilter:
-          minLevel: ERROR
-          maxLevel: WARN
+          Pattern: "%highlight{%date{YYYYMMdd H:mm} [%level] %msg%n}{INFO=normal, TRACE=green}"
       -
         name: ExternalAppender
         PatternLayout:
-          Pattern: "%highlight{%date{YYYYMMdd H:mm} [%level] (%logger{36}): %msg%n}{STYLE=Logback}"
+          Pattern: "%highlight{%date{YYYYMMdd H:mm} [%level] (%logger{36}): %msg%n}"
 
   Loggers:
     logger:
@@ -31,8 +21,6 @@ Configuration:
         AppenderRef:
         -
           ref: IHMCAppender
-        -
-          ref: IHMCErrorWarnAppender
     Root:
       level: error
       AppenderRef:
