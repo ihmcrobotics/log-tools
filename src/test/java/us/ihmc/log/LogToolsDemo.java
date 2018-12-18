@@ -35,9 +35,18 @@ public class LogToolsDemo
    {
       String demo_there = "Demo there";
       error(demo_there);
+      error(demo_there);
+      warn("var1: {}, var2: {}", 9, false);
       warn("var1: {}, var2: {}", 9, false);
       info(demo_there);
+      info(demo_there);
+      error(demo_there);
+      error(demo_there);
+      warn("var1: {}, var2: {}", 9, false);
+      warn("var1: {}, var2: {}", 9, false);
       debug(demo_there);
+      debug(demo_there);
+      trace(demo_there);
       trace(demo_there);
 
       new LogToolsDemo();
