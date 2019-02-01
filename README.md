@@ -102,3 +102,7 @@ To run tests, only logging errors:
 ```
 > gradle test -Plog.level=error
 ```
+
+### Misc
+
+Warnings about WindowsAnsiOutputStream: https://github.com/apache/logging-log4j2/commit/c8a7e559fa3cfd16f0e8a7be945a7682bebd11ab
