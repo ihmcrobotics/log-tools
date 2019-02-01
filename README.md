@@ -9,6 +9,7 @@ This library is aimed at the IHMC Robotics lab.
 - Provides Java and Gradle properties for setting log levels.
 - Granular non-realtime mode for setting log levels of packages and classes.
 - Adds class name and line number to all log entries.
+- Colors `ERROR` and `WARN` levels red and yellow.
 
 ### Download
 
