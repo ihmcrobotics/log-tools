@@ -1,12 +1,10 @@
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.*
-import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 
 plugins {
    `java-library`
    id("us.ihmc.ihmc-build") version "0.15.5"
-   id("us.ihmc.ihmc-ci") version "4.2"
+   id("us.ihmc.ihmc-ci") version "4.8"
    id("us.ihmc.log-tools")
 }
 
