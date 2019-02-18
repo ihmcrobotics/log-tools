@@ -33,7 +33,7 @@ dependencies {
 ihmc.sourceSetProject("test").dependencies {
    implementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
    runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.0")
-   compile("us.ihmc:ihmc-commons-testing:0.25.1")
+   compile("us.ihmc:ihmc-commons-testing:0.25.2")
 }
 
 // test that custom JavaExec tasks receive the log level from Gradle properties
