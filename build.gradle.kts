@@ -3,7 +3,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 
 plugins {
    `java-library`
-   id("us.ihmc.ihmc-build") version "0.15.5"
+   id("us.ihmc.ihmc-build") version "0.15.6"
    id("us.ihmc.ihmc-ci") version "4.9"
    id("us.ihmc.log-tools")
 }
