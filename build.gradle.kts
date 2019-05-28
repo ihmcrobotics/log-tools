@@ -5,12 +5,13 @@ plugins {
    `java-library`
    id("us.ihmc.ihmc-build") version "0.15.7"
    id("us.ihmc.ihmc-ci") version "4.23"
+   id("us.ihmc.ihmc-cd") version "0.1"
    id("us.ihmc.log-tools")
 }
 
 ihmc {
    group = "us.ihmc"
-   version = "0.3.1"
+   version = "0.3.2"
    vcsUrl = "https://github.com/ihmcrobotics/log-tools"
    openSource = true
    maintainer = "Duncan Calvert <dcalvert@ihmc.us>"
@@ -33,7 +34,7 @@ dependencies {
 ihmc.sourceSetProject("test").dependencies {
    implementation("org.junit.jupiter:junit-jupiter-api:5.4.0")
    runtimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.0")
-   compile("us.ihmc:ihmc-commons-testing:0.25.4")
+   compile("us.ihmc:ihmc-commons-testing:0.26.3")
 }
 
 // test that custom JavaExec tasks receive the log level from Gradle properties
