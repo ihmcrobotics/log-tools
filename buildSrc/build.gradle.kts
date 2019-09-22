@@ -1,10 +1,10 @@
 import com.gradle.publish.MavenCoordinates
-import com.gradle.publish.PluginConfig
 
 plugins {
+   `kotlin-dsl`
    `java-gradle-plugin`
-   kotlin("jvm") version "1.2.61"
-   id("com.gradle.plugin-publish") version "0.9.9"
+   `maven-publish`
+   id("com.gradle.plugin-publish") version "0.10.0"
 }
 
 group = "us.ihmc"
@@ -16,32 +16,35 @@ repositories {
 }
 
 dependencies {
-   compile(gradleApi())
-   compile(kotlin("stdlib"))
-//   runtimeOnly(kotlin("runtime"))
+
 }
 
+val pluginDisplayName = "Log Tools"
+val pluginDescription = "Message logging tools for IHMC Robotics."
+val pluginVcsUrl = "https://github.com/ihmcrobotics/log-tools"
+val pluginTags = listOf("log", "tools", "ihmc", "robotics")
+
 gradlePlugin {
-   plugins {
-      register("logToolsPlugin") {
-         id = project.group as String + "." + project.name
-         displayName = "Log Tools"
-         implementationClass = "us.ihmc.log.LogToolsPlugin"
-         description = "Message logging tools for IHMC Robotics."
-      }
+   plugins.register("logToolsPlugin") {
+      id = project.group as String + "." + project.name
+      implementationClass = "us.ihmc.log.LogToolsPlugin"
+      displayName = pluginDisplayName
+      description = pluginDescription
    }
 }
 
 pluginBundle {
-   website = "https://github.com/ihmcrobotics/log-tools"
-   vcsUrl = "https://github.com/ihmcrobotics/log-tools"
-   description = "Message logging tools for IHMC Robotics."
-   tags = listOf("log", "tools", "ihmc", "robotics")
+   website = pluginVcsUrl
+   vcsUrl = pluginVcsUrl
+   description = pluginDescription
+   tags = pluginTags
 
-   plugins.register("logToolsPlugin") {
+   plugins.getByName("logToolsPlugin") {
       id = project.group as String + "." + project.name
       version = project.version as String
-      displayName = "Log Tools"
+      displayName = pluginDisplayName
+      description = pluginDescription
+      tags = pluginTags
    }
 
    mavenCoordinates(closureOf<MavenCoordinates> {

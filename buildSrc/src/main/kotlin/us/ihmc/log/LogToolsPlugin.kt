@@ -30,15 +30,15 @@ class LogToolsPlugin : Plugin<Project>
 
       for (allproject in project.allprojects)
       {
-         allproject.tasks.withType(JavaExec::class.java) { javaExec -> // setup properties for all JavaExec tasks
+         allproject.tasks.withType(JavaExec::class.java).forEach { javaExec -> // setup properties for all JavaExec tasks
             javaExec.systemProperties.putAll(javaProperties)
             allproject.logger.info("[log-tools] Passing JVM args ${javaExec.systemProperties} to $javaExec")
          }
-         allproject.tasks.withType(Test::class.java) { test -> // setup properties for forked test jvms
+         allproject.tasks.withType(Test::class.java).forEach { test -> // setup properties for forked test jvms
             test.systemProperties.putAll(javaProperties)
             allproject.logger.info("[log-tools] Passing JVM args ${test.systemProperties} to $test")
          }
-         allproject.tasks.withType(CreateStartScripts::class.java) { startScripts -> // setup properties for all start scripts (includes application plugin)
+         allproject.tasks.withType(CreateStartScripts::class.java).forEach { startScripts -> // setup properties for all start scripts (includes application plugin)
             val list = arrayListOf<String>()
             javaProperties.forEach {
                list.add("-D${it.key}=${it.value}")
