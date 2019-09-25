@@ -5,7 +5,7 @@ plugins {
    `java-library`
    id("us.ihmc.ihmc-build") version "0.19.5"
    id("us.ihmc.ihmc-ci") version "5.0"
-   id("us.ihmc.ihmc-cd") version "0.2"
+   id("us.ihmc.ihmc-cd") version "1.7"
    id("us.ihmc.log-tools")
 }
 
