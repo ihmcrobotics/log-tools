@@ -1,4 +1,5 @@
 Configuration:
+  shutdownHook: disable
   status: warn
   appenders:
     Console:
