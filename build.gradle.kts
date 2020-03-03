@@ -32,7 +32,7 @@ dependencies {
 }
 
 ihmc.sourceSetProject("test").dependencies {
-   compile("us.ihmc:ihmc-commons-testing:0.26.6")
+   compile("us.ihmc:ihmc-commons-testing:0.27.0")
 }
 
 // test that custom JavaExec tasks receive the log level from Gradle properties
