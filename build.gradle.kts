@@ -45,7 +45,7 @@ ihmc.sourceSetProject("test").tasks.register("runDemo", JavaExec::class.java) {
 ihmc.sourceSetProject("test").tasks.withType<Test> {
    useJUnitPlatform()
 
-   ihmc.sourceSetProject("test").configurations.compile.files.forEach {
+   ihmc.sourceSetProject("test").configurations.runtime.files.forEach {
       if (it.name.contains("java-allocation-instrumenter"))
       {
          val jvmArg = "-javaagent:" + it.getAbsolutePath()
