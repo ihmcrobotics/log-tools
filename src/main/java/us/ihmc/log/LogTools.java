@@ -371,6 +371,31 @@ public class LogTools
       logIfEnabled(Level.FATAL, message, p0, p1, p2);
    }
 
+   public static void fatal(String message)
+   {
+      logIfEnabled(Level.FATAL, message);
+   }
+
+   public static void fatal(String message, Supplier<?> msgSupplier)
+   {
+      logIfEnabled(Level.FATAL, message, msgSupplier);
+   }
+
+   public static void fatal(String message, Object p0)
+   {
+      logIfEnabled(Level.FATAL, message, p0);
+   }
+
+   public static void fatal(String message, Object p0, Object p1)
+   {
+      logIfEnabled(Level.FATAL, message, p0, p1);
+   }
+
+   public static void fatal(String message, Object p0, Object p1, Object p2)
+   {
+      logIfEnabled(Level.FATAL, message, p0, p1, p2);
+   }
+
    public static void error(Object message)
    {
       logIfEnabled(Level.ERROR, message);
@@ -402,6 +427,31 @@ public class LogTools
    }
 
    public static void error(Object message, Object p0, Object p1, Object p2)
+   {
+      logIfEnabled(Level.ERROR, message, p0, p1, p2);
+   }
+
+   public static void error(String message)
+   {
+      logIfEnabled(Level.ERROR, message);
+   }
+
+   public static void error(String message, Supplier<?> msgSupplier)
+   {
+      logIfEnabled(Level.ERROR, message, msgSupplier);
+   }
+
+   public static void error(String message, Object p0)
+   {
+      logIfEnabled(Level.ERROR, message, p0);
+   }
+
+   public static void error(String message, Object p0, Object p1)
+   {
+      logIfEnabled(Level.ERROR, message, p0, p1);
+   }
+
+   public static void error(String message, Object p0, Object p1, Object p2)
    {
       logIfEnabled(Level.ERROR, message, p0, p1, p2);
    }
@@ -441,6 +491,31 @@ public class LogTools
       logIfEnabled(Level.WARN, message, p0, p1, p2);
    }
 
+   public static void warn(String message)
+   {
+      logIfEnabled(Level.WARN, message);
+   }
+
+   public static void warn(String message, Supplier<?> msgSupplier)
+   {
+      logIfEnabled(Level.WARN, message, msgSupplier);
+   }
+
+   public static void warn(String message, Object p0)
+   {
+      logIfEnabled(Level.WARN, message, p0);
+   }
+
+   public static void warn(String message, Object p0, Object p1)
+   {
+      logIfEnabled(Level.WARN, message, p0, p1);
+   }
+
+   public static void warn(String message, Object p0, Object p1, Object p2)
+   {
+      logIfEnabled(Level.WARN, message, p0, p1, p2);
+   }
+
    public static void info(Object message)
    {
       logIfEnabled(Level.INFO, message);
@@ -472,6 +547,31 @@ public class LogTools
    }
 
    public static void info(Object message, Object p0, Object p1, Object p2)
+   {
+      logIfEnabled(Level.INFO, message, p0, p1, p2);
+   }
+
+   public static void info(String message)
+   {
+      logIfEnabled(Level.INFO, message);
+   }
+
+   public static void info(String message, Supplier<?> msgSupplier)
+   {
+      logIfEnabled(Level.INFO, message, msgSupplier);
+   }
+
+   public static void info(String message, Object p0)
+   {
+      logIfEnabled(Level.INFO, message, p0);
+   }
+
+   public static void info(String message, Object p0, Object p1)
+   {
+      logIfEnabled(Level.INFO, message, p0, p1);
+   }
+
+   public static void info(String message, Object p0, Object p1, Object p2)
    {
       logIfEnabled(Level.INFO, message, p0, p1, p2);
    }
@@ -511,6 +611,31 @@ public class LogTools
       logIfEnabled(Level.DEBUG, message, p0, p1, p2);
    }
 
+   public static void debug(String message)
+   {
+      logIfEnabled(Level.DEBUG, message);
+   }
+
+   public static void debug(String message, Supplier<?> msgSupplier)
+   {
+      logIfEnabled(Level.DEBUG, message, msgSupplier);
+   }
+
+   public static void debug(String message, Object p0)
+   {
+      logIfEnabled(Level.DEBUG, message, p0);
+   }
+
+   public static void debug(String message, Object p0, Object p1)
+   {
+      logIfEnabled(Level.DEBUG, message, p0, p1);
+   }
+
+   public static void debug(String message, Object p0, Object p1, Object p2)
+   {
+      logIfEnabled(Level.DEBUG, message, p0, p1, p2);
+   }
+
    public static void trace(Object message)
    {
       logIfEnabled(Level.TRACE, message);
@@ -542,6 +667,31 @@ public class LogTools
    }
 
    public static void trace(Object message, Object p0, Object p1, Object p2)
+   {
+      logIfEnabled(Level.TRACE, message, p0, p1, p2);
+   }
+
+   public static void trace(String message)
+   {
+      logIfEnabled(Level.TRACE, message);
+   }
+
+   public static void trace(String message, Supplier<?> msgSupplier)
+   {
+      logIfEnabled(Level.TRACE, message, msgSupplier);
+   }
+
+   public static void trace(String message, Object p0)
+   {
+      logIfEnabled(Level.TRACE, message, p0);
+   }
+
+   public static void trace(String message, Object p0, Object p1)
+   {
+      logIfEnabled(Level.TRACE, message, p0, p1);
+   }
+
+   public static void trace(String message, Object p0, Object p1, Object p2)
    {
       logIfEnabled(Level.TRACE, message, p0, p1, p2);
    }
