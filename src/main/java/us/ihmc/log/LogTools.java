@@ -210,6 +210,27 @@ public class LogTools
       }
    }
 
+   private static void logIfEnabled(Level level, int additionalStackTraceHeight, Object message)
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
+         {
+            StackTraceElement origin = origin(additionalStackTraceHeight); // here it is OK to start allocating, this log message is enabled
+            IHMC_ROOT_LOGGER.log(level, format(origin, message));
+         }
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(additionalStackTraceHeight); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         if (logger.isEnabled(level))
+         {
+            logger.log(level, format(origin, message));
+         }
+      }
+   }
+
    private static void logIfEnabled(Level level, Supplier<?> msgSupplier)
    {
       if (!GRANULAR_MODE) // default, realtime safe mode
@@ -320,6 +341,11 @@ public class LogTools
       logIfEnabled(Level.FATAL, message);
    }
 
+   public static void fatal(int additionalStackTraceHeight, Object message)
+   {
+      logIfEnabled(Level.FATAL, additionalStackTraceHeight, message);
+   }
+
    public static void fatal(Supplier<?> msgSupplier)
    {
       logIfEnabled(Level.FATAL, msgSupplier);
@@ -348,6 +374,11 @@ public class LogTools
    public static void error(Object message)
    {
       logIfEnabled(Level.ERROR, message);
+   }
+
+   public static void error(int additionalStackTraceHeight, Object message)
+   {
+      logIfEnabled(Level.ERROR, additionalStackTraceHeight, message);
    }
 
    public static void error(Supplier<?> msgSupplier)
@@ -380,6 +411,11 @@ public class LogTools
       logIfEnabled(Level.WARN, message);
    }
 
+   public static void warn(int additionalStackTraceHeight, Object message)
+   {
+      logIfEnabled(Level.WARN, additionalStackTraceHeight, message);
+   }
+
    public static void warn(Supplier<?> msgSupplier)
    {
       logIfEnabled(Level.WARN, msgSupplier);
@@ -408,6 +444,11 @@ public class LogTools
    public static void info(Object message)
    {
       logIfEnabled(Level.INFO, message);
+   }
+
+   public static void info(int additionalStackTraceHeight, Object message)
+   {
+      logIfEnabled(Level.INFO, additionalStackTraceHeight, message);
    }
 
    public static void info(Supplier<?> msgSupplier)
@@ -440,6 +481,11 @@ public class LogTools
       logIfEnabled(Level.DEBUG, message);
    }
 
+   public static void debug(int additionalStackTraceHeight, Object message)
+   {
+      logIfEnabled(Level.DEBUG, additionalStackTraceHeight, message);
+   }
+
    public static void debug(Supplier<?> msgSupplier)
    {
       logIfEnabled(Level.DEBUG, msgSupplier);
@@ -468,6 +514,11 @@ public class LogTools
    public static void trace(Object message)
    {
       logIfEnabled(Level.TRACE, message);
+   }
+
+   public static void trace(int additionalStackTraceHeight, Object message)
+   {
+      logIfEnabled(Level.TRACE, additionalStackTraceHeight, message);
    }
 
    public static void trace(Supplier<?> msgSupplier)

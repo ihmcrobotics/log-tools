@@ -12,6 +12,12 @@ public class LogToolsTest
       LogTools.info("Hello there");
       LogTools.debug("Hello there");
       LogTools.trace("Hello there");
+
+      LogTools.error(1, "Hello there");
+      LogTools.warn(1, "Hello there");
+      LogTools.info(1, "Hello there");
+      LogTools.debug(1, "Hello there");
+      LogTools.trace(1, "Hello there");
    }
    
    @Test
