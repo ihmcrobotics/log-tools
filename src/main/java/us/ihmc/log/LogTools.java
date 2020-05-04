@@ -168,7 +168,7 @@ public class LogTools
 
    private static String format(StackTraceElement origin, Object message)
    {
-      return clickableCoordinatePrefix(origin) + message.toString();
+      return clickableCoordinatePrefix(origin) + (message == null ? null : message.toString());
    }
 
    private static String clickableCoordinatePrefix(StackTraceElement origin)

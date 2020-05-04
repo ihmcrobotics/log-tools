@@ -2,6 +2,8 @@ package us.ihmc.log;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 public class LogToolsTest
 {
    @Test
@@ -32,5 +34,17 @@ public class LogToolsTest
          for (int i = 0; i < 50; i++)
          LogTools.info("Hello there");
       }
+   }
+
+   @Test
+   public void testPassingNull()
+   {
+      assertDoesNotThrow(() -> {
+         LogTools.error((String) null);
+         LogTools.warn((String) null);
+         LogTools.info((String) null);
+         LogTools.debug((String) null);
+         LogTools.trace((String) null);
+      });
    }
 }
