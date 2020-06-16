@@ -1,1 +1,1 @@
-rootProject.name = "log-tools"
+rootProject.name = "log-tools-plugin"

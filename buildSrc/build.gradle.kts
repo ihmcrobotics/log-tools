@@ -19,7 +19,7 @@ dependencies {
 
 }
 
-val pluginDisplayName = "Log Tools"
+val pluginDisplayName = "Log Tools Plugin"
 val pluginDescription = "Message logging tools for IHMC Robotics."
 val pluginVcsUrl = "https://github.com/ihmcrobotics/log-tools"
 val pluginTags = listOf("log", "tools", "ihmc", "robotics")
