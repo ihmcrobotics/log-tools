@@ -125,7 +125,7 @@ public class LogTools
    /**
     * Gets or retrieves a logger instance by name.
     */
-   private static final Logger getLogger(String loggerName)
+   private static Logger getLogger(String loggerName)
    {
       if (!GRANULAR_MODE)
          throw new RuntimeException("getLogger() should never be called when GRANULAR_MODE = false");
@@ -334,6 +334,262 @@ public class LogTools
             logger.log(level, format(origin, message), p0, p1, p2);
          }
       }
+   }
+
+   public static boolean isEnabled(Level level)
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(level); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(level);
+      }
+   }
+
+   public static boolean isEnabled(Level level, int additionalStackTraceHeight)
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(level); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1 + additionalStackTraceHeight); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(level);
+      }
+   }
+
+   public static boolean isFatalEnabled()
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.FATAL); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.FATAL);
+      }
+   }
+
+   public static boolean isFatalEnabled(int additionalStackTraceHeight)
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.FATAL); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1 + additionalStackTraceHeight); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.FATAL);
+      }
+   }
+
+   public static boolean isErrorEnabled()
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.ERROR); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.ERROR);
+      }
+   }
+
+   public static boolean isErrorEnabled(int additionalStackTraceHeight)
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.ERROR); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1 + additionalStackTraceHeight); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.ERROR);
+      }
+   }
+
+   public static boolean isWarnEnabled()
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.WARN); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.WARN);
+      }
+   }
+
+   public static boolean isWarnEnabled(int additionalStackTraceHeight)
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.WARN); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1 + additionalStackTraceHeight); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.WARN);
+      }
+   }
+
+   public static boolean isInfoEnabled()
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.INFO); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.INFO);
+      }
+   }
+
+   public static boolean isInfoEnabled(int additionalStackTraceHeight)
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.INFO); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1 + additionalStackTraceHeight); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.INFO);
+      }
+   }
+
+   public static boolean isDebugEnabled()
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.DEBUG); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.DEBUG);
+      }
+   }
+
+   public static boolean isDebugEnabled(int additionalStackTraceHeight)
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.DEBUG); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1 + additionalStackTraceHeight); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.DEBUG);
+      }
+   }
+
+   public static boolean isTraceEnabled()
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.TRACE); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.TRACE);
+      }
+   }
+
+   public static boolean isTraceEnabled(int additionalStackTraceHeight)
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.isEnabled(Level.TRACE); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1 + additionalStackTraceHeight); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.isEnabled(Level.TRACE);
+      }
+   }
+
+   public static void log(Level level, Object message)
+   {
+      logIfEnabled(level, message);
+   }
+
+   public static void log(Level level, int additionalStackTraceHeight, Object message)
+   {
+      logIfEnabled(level, additionalStackTraceHeight, message);
+   }
+
+   public static void log(Level level, Supplier<?> msgSupplier)
+   {
+      logIfEnabled(level, msgSupplier);
+   }
+
+   public static void log(Level level, Object message, Supplier<?> msgSupplier)
+   {
+      logIfEnabled(level, message, msgSupplier);
+   }
+
+   public static void log(Level level, Object message, Object p0)
+   {
+      logIfEnabled(level, message, p0);
+   }
+
+   public static void log(Level level, Object message, Object p0, Object p1)
+   {
+      logIfEnabled(level, message, p0, p1);
+   }
+
+   public static void log(Level level, Object message, Object p0, Object p1, Object p2)
+   {
+      logIfEnabled(level, message, p0, p1, p2);
+   }
+
+   public static void log(Level level, String message)
+   {
+      logIfEnabled(level, message);
+   }
+
+   public static void log(Level level, String message, Supplier<?> msgSupplier)
+   {
+      logIfEnabled(level, message, msgSupplier);
+   }
+
+   public static void log(Level level, String message, Object p0)
+   {
+      logIfEnabled(level, message, p0);
+   }
+
+   public static void log(Level level, String message, Object p0, Object p1)
+   {
+      logIfEnabled(level, message, p0, p1);
+   }
+
+   public static void log(Level level, String message, Object p0, Object p1, Object p2)
+   {
+      logIfEnabled(level, message, p0, p1, p2);
    }
 
    public static void fatal(Object message)
