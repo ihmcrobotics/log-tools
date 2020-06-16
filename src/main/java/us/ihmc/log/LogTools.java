@@ -259,7 +259,7 @@ public class LogTools
          if (IHMC_ROOT_LOGGER.isEnabled(level)) // simple O(1) boolean check
          {
             StackTraceElement origin = origin(); // here it is OK to start allocating, this log message is enabled
-            IHMC_ROOT_LOGGER.log(level, format(origin, message), msgSupplier);
+            IHMC_ROOT_LOGGER.log(level, format(origin, message), msgSupplier.get());
          }
       }
       else // granular = true
@@ -268,7 +268,7 @@ public class LogTools
          Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
          if (logger.isEnabled(level))
          {
-            logger.log(level, format(origin, message), msgSupplier);
+            logger.log(level, format(origin, message), msgSupplier.get());
          }
       }
    }
