@@ -2,11 +2,10 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.*
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 
 plugins {
-   `java-library`
    id("us.ihmc.ihmc-build") version "0.20.1"
    id("us.ihmc.ihmc-ci") version "5.3"
    id("us.ihmc.ihmc-cd") version "1.8"
-   id("us.ihmc.log-tools")
+   id("us.ihmc.log-tools-plugin")
 }
 
 ihmc {
@@ -21,14 +20,12 @@ ihmc {
 }
 
 dependencies {
-//   implementation("org.slf4j:slf4j-api:1.7.25")
-   compile("org.apache.logging.log4j:log4j-api:2.11.1")
-   compile("org.apache.logging.log4j:log4j-core:2.11.1")
-   compile("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
-   compile("com.fasterxml.jackson.core:jackson-databind:2.9.6")
-   compile("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.6")
-   compile("org.fusesource.jansi:jansi:1.17.1")
-//   compile("com.mihnita:color-loggers:1.0.5")
+   api("org.apache.logging.log4j:log4j-api:2.11.1")
+   api("org.apache.logging.log4j:log4j-core:2.11.1")
+   api("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
+   api("com.fasterxml.jackson.core:jackson-databind:2.9.6")
+   api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.6")
+   api("org.fusesource.jansi:jansi:1.17.1")
 }
 
 ihmc.sourceSetProject("test").dependencies {
@@ -45,15 +42,14 @@ ihmc.sourceSetProject("test").tasks.register("runDemo", JavaExec::class.java) {
 ihmc.sourceSetProject("test").tasks.withType<Test> {
    useJUnitPlatform()
 
-   ihmc.sourceSetProject("test").configurations.compile.files.forEach {
+   ihmc.sourceSetProject("test").configurations.compile.get().files.forEach {
       if (it.name.contains("java-allocation-instrumenter"))
       {
-         val jvmArg = "-javaagent:" + it.getAbsolutePath()
-         println("[ihmc-commons] Passing JVM arg: " + jvmArg)
+         val jvmArg = "-javaagent:" + it.absolutePath
+         println("[ihmc-commons] Passing JVM arg: $jvmArg")
          val tmpArgs = allJvmArgs
          tmpArgs.add(jvmArg)
          allJvmArgs = tmpArgs
-
       }
    }
 
