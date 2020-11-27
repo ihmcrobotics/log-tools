@@ -2,7 +2,7 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.*
 import org.gradle.api.tasks.testing.logging.TestLogEvent.*
 
 plugins {
-   id("us.ihmc.ihmc-build") version "0.23.0"
+   id("us.ihmc.ihmc-build")
    id("us.ihmc.ihmc-ci") version "7.3"
    id("us.ihmc.ihmc-cd") version "1.17"
    id("us.ihmc.log-tools-plugin")
