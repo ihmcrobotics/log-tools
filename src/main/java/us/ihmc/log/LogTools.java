@@ -336,6 +336,20 @@ public class LogTools
       }
    }
 
+   public static Level getLevel()
+   {
+      if (!GRANULAR_MODE) // default, realtime safe mode
+      {
+         return IHMC_ROOT_LOGGER.getLevel(); // simple O(1) boolean check
+      }
+      else // granular = true
+      {
+         StackTraceElement origin = origin(-1); // allocate throwable even if level is disabled
+         Logger logger = getLogger(classFromOrigin(origin)); // get logger based on class name
+         return logger.getLevel();
+      }
+   }
+
    public static boolean isEnabled(Level level)
    {
       if (!GRANULAR_MODE) // default, realtime safe mode
