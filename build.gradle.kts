@@ -20,12 +20,12 @@ ihmc {
 }
 
 dependencies {
-   api("org.apache.logging.log4j:log4j-api:2.11.1")
-   api("org.apache.logging.log4j:log4j-core:2.11.1")
-   api("org.apache.logging.log4j:log4j-slf4j-impl:2.11.1")
-   api("com.fasterxml.jackson.core:jackson-databind:2.9.6")
-   api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.9.6")
-   api("org.fusesource.jansi:jansi:1.17.1")
+   api("org.apache.logging.log4j:log4j-api:2.14.0")
+   api("org.apache.logging.log4j:log4j-core:2.14.0")
+   api("org.apache.logging.log4j:log4j-slf4j-impl:2.14.0")
+   api("com.fasterxml.jackson.core:jackson-databind:2.12.0")
+   api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.0")
+   api("org.fusesource.jansi:jansi:2.1.1")
 }
 
 ihmc.sourceSetProject("test").dependencies {
