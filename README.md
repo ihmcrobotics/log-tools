@@ -29,6 +29,8 @@ Unfortunately, the name "log-tools" has already been taken on JCenter so we curr
 
 To log messages, use the static `LogTools` methods.
 
+#### Setting the log levels
+
 Log tools provides the following log levels: `off`, `fatal`, `error`, `warn`, `info`, `debug`, `trace`, and `all`.
 
 Each levels has no special behavior other than it's importance to the end user.
@@ -63,6 +65,16 @@ Examples:
 -Dlog.granular=false -Dlog.level.us.ihmc.communication=trace   // Does NOT enable trace level on YoDouble class, realtime safe
 
 ```
+
+#### More options
+
+Pass the `-Dlog4j2.configurationFile=` system property to tell Log4J2 to use a different configuration file.
+
+There a few built in configuration options:
+
+Pass `-Dlog4j2.configurationFile=log4j2TeeToFile.yml` to tee log output to a timestamped file in `~/.ihmc/logs`.
+
+Pass `-Dlog4j2.configurationFile=log4j2NoColor.yml` to disable the ANSI colors. This is useful for viewers that don't support it.
 
 ### Realtime safety
 
