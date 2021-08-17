@@ -2,7 +2,6 @@ package us.ihmc.log
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaApplication
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.application.CreateStartScripts
 import org.gradle.api.tasks.testing.Test
