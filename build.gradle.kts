@@ -10,7 +10,7 @@ plugins {
 
 ihmc {
    group = "us.ihmc"
-   version = "0.6.1"
+   version = "0.6.2"
    vcsUrl = "https://github.com/ihmcrobotics/log-tools"
    openSource = true
    maintainer = "Duncan Calvert <dcalvert@ihmc.us>"
@@ -20,12 +20,12 @@ ihmc {
 }
 
 dependencies {
-   api("org.apache.logging.log4j:log4j-api:2.14.0")
-   api("org.apache.logging.log4j:log4j-core:2.14.0")
-   api("org.apache.logging.log4j:log4j-slf4j-impl:2.14.0")
-   api("com.fasterxml.jackson.core:jackson-databind:2.12.0")
-   api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.12.0")
-   api("org.fusesource.jansi:jansi:2.1.1")
+   api("org.apache.logging.log4j:log4j-api:2.15.0")
+   api("org.apache.logging.log4j:log4j-core:2.15.0")
+   api("org.apache.logging.log4j:log4j-slf4j-impl:2.15.0")
+   api("com.fasterxml.jackson.core:jackson-databind:2.13.0")
+   api("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.0")
+   api("org.fusesource.jansi:jansi:2.4.0")
 }
 
 ihmc.sourceSetProject("test").dependencies {
