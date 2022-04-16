@@ -32,6 +32,28 @@ ihmc.sourceSetProject("test").dependencies {
    api("us.ihmc:ihmc-commons-testing:0.30.5")
 }
 
+app.entrypoint(ihmc.sourceSetProject("test"), "LogToolsDemo", "us.ihmc.log.LogToolsDemo")
+
+val hostname: String by project
+val username: String by project
+val distFolder by lazy { ihmc.sourceSetProject("test").tasks.named<Sync>("installDist").get().destinationDir.toString() }
+
+tasks.create("deploy") {
+   dependsOn("log-tools-test:installDist")
+
+   doLast {
+      remote.session(hostname, username) {
+         exec("mkdir -p /home/$username/.ihmc")
+         exec("mkdir -p /home/$username/.ihmc/log-tools-test")
+         exec("rm -rf /home/$username/.ihmc/log-tools-test/bin")
+         exec("rm -rf /home/$username/.ihmc/log-tools-test/lib")
+         put(file("$distFolder/bin").path, "/home/$username/.ihmc/log-tools-test/bin")
+         put(file("$distFolder/lib").path, "/home/$username/.ihmc/log-tools-test/lib")
+         exec("find /home/$username/.ihmc/log-tools-test/bin -type f -exec chmod +x {} \\;")
+      }
+   }
+}
+
 // test that custom JavaExec tasks receive the log level from Gradle properties
 ihmc.sourceSetProject("test").tasks.register("runDemo", JavaExec::class.java) {
    classpath = ihmc.sourceSet("test").runtimeClasspath
