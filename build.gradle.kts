@@ -29,7 +29,7 @@ dependencies {
 }
 
 ihmc.sourceSetProject("test").dependencies {
-   api("us.ihmc:ihmc-commons-testing:0.30.5")
+   api("us.ihmc:ihmc-commons-testing:0.30.6")
 }
 
 app.entrypoint(ihmc.sourceSetProject("test"), "LogToolsDemo", "us.ihmc.log.LogToolsDemo")
