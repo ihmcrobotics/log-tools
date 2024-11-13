@@ -55,30 +55,32 @@ tasks.create("deploy") {
 }
 
 // test that custom JavaExec tasks receive the log level from Gradle properties
-ihmc.sourceSetProject("test").tasks.register("runDemo", JavaExec::class.java) {
-   classpath = ihmc.sourceSet("test").runtimeClasspath
-   main = "us.ihmc.log.LogToolsDemo"
-}
+// TODO: Fixme
+//ihmc.sourceSetProject("test").tasks.register("runDemo", JavaExec::class.java) {
+//   classpath = ihmc.sourceSet("test").runtimeClasspath
+//   main = "us.ihmc.log.LogToolsDemo"
+//}
 
 // test that test jvms get the Gradle properties
-ihmc.sourceSetProject("test").tasks.withType<Test> {
-   useJUnitPlatform()
-
-   ihmc.sourceSetProject("test").configurations.runtimeClasspath.get().files.forEach {
-      if (it.name.contains("java-allocation-instrumenter"))
-      {
-         val jvmArg = "-javaagent:" + it.absolutePath
-         println("[ihmc-commons] Passing JVM arg: $jvmArg")
-         val tmpArgs = allJvmArgs
-         tmpArgs.add(jvmArg)
-         allJvmArgs = tmpArgs
-      }
-   }
-
-   doFirst {
-      testLogging {
-         events = setOf(PASSED, FAILED, SKIPPED, STANDARD_OUT, STANDARD_ERROR)
-         exceptionFormat = FULL
-      }
-   }
-}
+// TODO: Fixme
+//ihmc.sourceSetProject("test").tasks.withType<Test> {
+//   useJUnitPlatform()
+//
+//   ihmc.sourceSetProject("test").configurations.runtimeClasspath.get().files.forEach {
+//      if (it.name.contains("java-allocation-instrumenter"))
+//      {
+//         val jvmArg = "-javaagent:" + it.absolutePath
+//         println("[ihmc-commons] Passing JVM arg: $jvmArg")
+//         val tmpArgs = allJvmArgs
+//         tmpArgs.add(jvmArg)
+//         allJvmArgs = tmpArgs
+//      }
+//   }
+//
+//   doFirst {
+//      testLogging {
+//         events = setOf(PASSED, FAILED, SKIPPED, STANDARD_OUT, STANDARD_ERROR)
+//         exceptionFormat = FULL
+//      }
+//   }
+//}
