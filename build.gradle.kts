@@ -62,15 +62,6 @@ ihmc.sourceSetProject("test").tasks.register("runDemo", JavaExec::class.java) {
 ihmc.sourceSetProject("test").tasks.withType<Test> {
    useJUnitPlatform()
 
-   ihmc.sourceSetProject("test").configurations.runtimeClasspath.get().files.forEach {
-      if (it.name.contains("java-allocation-instrumenter"))
-      {
-         val allocationArg = "-javaagent:" + it.absolutePath
-         println("[ihmc-commons] Passing JVM arg: $allocationArg")
-         jvmArgs(allocationArg)
-      }
-   }
-
    doFirst {
       testLogging {
          events = setOf(PASSED, FAILED, SKIPPED, STANDARD_OUT, STANDARD_ERROR)
