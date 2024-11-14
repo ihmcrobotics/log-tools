@@ -16,17 +16,21 @@ This library is aimed at the IHMC Robotics lab.
 
 ### Download
 
-Unfortunately, the name "log-tools" has already been taken on JCenter so we currently require adding the Maven repository:
+#### Main Maven artifact
 
-`maven { url = uri("https://dl.bintray.com/ihmcrobotics/maven-release") }`
+```
+dependencies {
+   api("us.ihmc:log-tools:<version>")
+}
+```
 
-`plugins { id "us.ihmc.log-tools" version `
-[ ![Download](https://api.bintray.com/packages/ihmcrobotics/maven-release/log-tools/images/download.svg) ](https://bintray.com/ihmcrobotics/maven-release/log-tools/_latestVersion)
-` }   // Gradle plugin`
+#### Gradle plugin
 
-
-`compile group: "us.ihmc", name: "log-tools", version: `
-[ ![Download](https://api.bintray.com/packages/ihmcrobotics/maven-release/log-tools/images/download.svg) ](https://bintray.com/ihmcrobotics/maven-release/log-tools/_latestVersion)`   // API`
+```
+plugins {
+   id("us.ihmc.log-tools-plugin") version "<version>"
+}
+```
 
 ### API
 
