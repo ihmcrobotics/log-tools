@@ -14,7 +14,7 @@ Configuration:
       -
         name: ExternalAppender
         PatternLayout:
-          Pattern: "%highlight{%date{yyMMdd H:mm:ss:SSS} [%level] (%logger{36}): %msg%n}"
+          Pattern: "%date{yyMMdd H:mm:ss:SSS} [%level] (%logger{36}): %msg%n"
     File:
       -
         name: IHMCFileAppender
