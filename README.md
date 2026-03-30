@@ -1,8 +1,5 @@
 # Log Tools
 
-![realtime](https://maven-badges.herokuapp.com/maven-central/us.ihmc/log-tools/badge.svg?style=plastic)
-![buildstatus](https://github.com/ihmcrobotics/log-tools/actions/workflows/gradle-test.yml/badge.svg)
-
 This library is aimed at the IHMC Robotics lab.
 
 ### Features
